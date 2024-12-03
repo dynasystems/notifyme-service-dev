@@ -1,0 +1,203 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: 1.0.0
+security:
+  - oAuth2ClientCredentials: []
+
+paths:
+  /v1/login:
+    post:
+      summary: API de autenticação
+      description: Para utilizar as Api's é necessario logar e pegar um token
+      tags:
+        - Autenticacao
+      operationId: postLoginV1
+      requestBody:
+        description: >-
+          Informe os dados - Fields **userName** and **password** para pegar um
+          token da apliacação.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResposeDTO'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/cep:
+    get:
+      summary: API de autenticação
+      description: Para utilizar as Api's é necessario logar e pegar um token
+      tags:
+        - cep
+      operationId: getCepV1
+      parameters:
+        - $ref: '#/components/parameters/estado'
+        - $ref: '#/components/parameters/cidade'
+        - $ref: '#/components/parameters/endereco'
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CepResponseDTO'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    oAuth2ClientCredentials:
+      type: oauth2
+      description: >-
+        Request an access token to Keycloak. Then use the obtained token to
+        access secured endpoints.
+      flows:
+        clientCredentials:
+          tokenUrl: >-
+            https://your-keycloak-domain/realms/{realm}/protocol/openid-connect/token
+          scopes: {}
+  schemas:
+    LoginRequestDTO:
+      type: object
+      properties:
+        username:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        password:
+          description: Informe a senha cadastrada.
+          type: string
+          example: '@df4fr4rf4r'
+      required:
+        - username
+        - password
+    LoginResposeDTO:
+      type: object
+      properties:
+        accessToken:
+          description: Token gerado para utilizar nas api
+          type: string
+          example: >-
+            eyJhbGciOiJSUzI1NieyJpc3MiOiJ2aWxhZ2JhY2tlbmQiLCJzdWIiOiIxIiwiZXhwIjoxN
+        expiresIn:
+          description: Tempo ate expiração.
+          type: integer
+          example: 10800
+      required:
+        - accessToken
+        - expiresIn
+
+    CepResponseDTO:
+      type: object
+      properties:
+        cep:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        logradouro:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        complemento:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        bairro:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        localidade:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+        uf:
+          description: Nome de usuário ou telefone
+          type: string
+          example: '18998224242'
+    Errors:
+      type: object
+      description: A collection of errors when processing a request.
+      properties:
+        error:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+    Error:
+      type: object
+      description: An error when processing a request.
+      properties:
+        code:
+          description: The error code.
+          type: string
+          example: NotNull
+        message:
+          description: The error message.
+          type: string
+          example: 'receiver.receiverTaxId: cannot be null'
+        field:
+          description: The field or attribute the error is related with.
+          type: string
+          example: receiver.receiverTaxId
+        action:
+          description: 'Action that may be performed to solve the issue, if any.'
+          type: string
+      required:
+        - code
+        - message
+  responses:
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+  parameters:
+    estado:
+      description: Account number.
+      name: estado
+      in: query
+      schema:
+        type: string
+      required: true
+    cidade:
+      description: Account number.
+      name: cidade
+      in: query
+      schema:
+        type: string
+      required: true
+    endereco:
+      description: Account number.
+      name: endereco
+      in: query
+      schema:
+        type: string
+      required: true
+    authorization:
+      name: Authorization
+      in: header
+      required: true
+      description: A valid OAuth2 access token.
+      schema:
+        type: string
+        pattern: Bearer .*
+        example: >-
+          Bearer
+          eyJhbGciOiKERzI1NiJ9.eyJleGFtcGxlIjoiZXhhbXBsZSJ9.CIOhRRU_233iQxVsR-4dZH5OGTZgExJAvOx7kUMJlisB          
