@@ -38,7 +38,7 @@ public class Usuario {
 
     @Column(name = "STATUS")
     @Convert(converter = UsuarioStatusConverter.class)
-    private UsuarioStatusEnum status;
+    private UsuarioStatusEnum status = UsuarioStatusEnum.ATIVO;
 
     @Column(name = "DATA_CADASTRO")
     @JsonFormat(pattern = "dd/MM/yyyy")

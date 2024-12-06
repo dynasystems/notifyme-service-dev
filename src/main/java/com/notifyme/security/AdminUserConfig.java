@@ -3,7 +3,7 @@ package com.notifyme.security;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.Role;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
-import com.notifyme.repository.PerfilRepository;
+import com.notifyme.repository.UsuarioRepository;
 import com.notifyme.repository.RoleRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class AdminUserConfig implements CommandLineRunner {
     private RoleRepository roleRepository;
 
     @Autowired
-    private PerfilRepository perfilRepository;
+    private UsuarioRepository perfilRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;

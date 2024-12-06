@@ -2,9 +2,9 @@ package com.notifyme.controller;
 
 import com.notifyme.dto.perfil.*;
 import com.notifyme.persistence.Usuario;
-import com.notifyme.repository.PerfilRepository;
+import com.notifyme.repository.UsuarioRepository;
 import com.notifyme.repository.RoleRepository;
-import com.notifyme.services.PerfilService;
+import com.notifyme.services.UsuarioService;
 import com.notifyme.utils.PageUtils;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 public class PerfilController {
 
     @Autowired
-    private PerfilService service;
+    private UsuarioService service;
 
     @Autowired
-    private PerfilRepository perfilRepository;
+    private UsuarioRepository perfilRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -63,11 +63,11 @@ public class PerfilController {
       return service.findByIdPerfilCompleto(id);
     }
 
-    @Transactional
-    @PostMapping("/new-perfil")
-    public void newPerfil (@RequestBody CreatePerfilDto dto) {
-        service.newPerfil(dto);
-    }
+//    @Transactional
+//    @PostMapping("/new-perfil")
+//    public void newPerfil (@RequestBody CreatePerfilDto dto) {
+//        service.newPerfil(dto);
+//    }
 
     @PostMapping("/new-perfil-logado")
     public void newPerfilLogado (@RequestBody CreatePerfilDto dto,

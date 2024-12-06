@@ -7,7 +7,7 @@ import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.UsuarioCondominio;
 import com.notifyme.persistence.Role;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
-import com.notifyme.repository.PerfilRepository;
+import com.notifyme.repository.UsuarioRepository;
 import com.notifyme.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PerfilService {
+public class UsuarioService {
 
-    private final PerfilRepository repository;
+    private final UsuarioRepository repository;
     private final CondominioService condominioService;
     private final PerfilCondominioService perfilCondominioService;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public Page<Usuario> findByFilter (final PerfilDto filter, Pageable pageable) {
-        return repository.findAll(PerfilRepository.Specs.byFilter(filter), pageable);
+        return repository.findAll(UsuarioRepository.Specs.byFilter(filter), pageable);
 
     }
 
@@ -69,15 +69,22 @@ public class PerfilService {
                 .orElseThrow(() -> new PerfilException("Perfil não encontrado"));
     }
 
-    public void newPerfil (@RequestBody CreatePerfilDto dto) {
-        var adminCondominioRole = roleRepository.findByName(Role.Values.ADMINCONDOMINIO.name());
-        var perfil = new Usuario();
-        perfil.setNome(dto.nome());
-        perfil.setTelefone(dto.telefone());
-        perfil.setEmail(dto.email());
-        perfil.setPassword(passwordEncoder.encode(dto.password()));
-        perfil.setRoles(Set.of(adminCondominioRole));
-        repository.save(perfil);
+    public void newUsuario (@RequestBody Usuario usuario) {
+
+        try {
+            var usuarioExistente = repository.findByTelefoneOrEmail(usuario.getTelefone(), usuario.getEmail());
+
+            if (usuarioExistente.isPresent()) {
+                throw new PerfilException("Usuário já cadastrado");
+            }
+            var adminCondominioRole = roleRepository.findByName(Role.Values.ADMINCONDOMINIO.name());
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            usuario.setRoles(Set.of(adminCondominioRole));
+            repository.save(usuario);
+        } catch (Exception e) {
+            log.error("Erro ao cadastrar usuario", e);
+            throw e;
+        }
     }
 
     public void newPerfilLogado (CreatePerfilDto dto, JwtAuthenticationToken token) {

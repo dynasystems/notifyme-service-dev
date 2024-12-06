@@ -19,7 +19,7 @@ import java.util.UUID;
 
 
 @Repository
-public interface PerfilRepository extends JpaRepository<Usuario, UUID>, JpaSpecificationExecutor<Usuario> {
+public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpecificationExecutor<Usuario> {
 
     Optional<Usuario> findByEmail(String email);
 

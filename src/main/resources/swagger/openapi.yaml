@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Test API
+  title: NotifyMe API
   version: 1.0.0
 security:
   - oAuth2ClientCredentials: []
@@ -9,14 +9,14 @@ paths:
   /v1/login:
     post:
       summary: API de autenticação
-      description: Para utilizar as Api's é necessario logar e pegar um token
+      description: Para utilizar as APIs é necessário logar e pegar um token.
       tags:
         - Autenticacao
       operationId: postLoginV1
       requestBody:
-        description: >-
-          Informe os dados - Fields **userName** and **password** para pegar um
-          token da apliacação.
+        description: >
+          Informe os dados - Fields **username** e **password** para pegar um
+          token da aplicação.
         required: true
         content:
           application/json:
@@ -33,10 +33,85 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/usuario:
+    post:
+      summary: API de inclusão de novo usuário
+      description: Para utilizar as APIs é necessário logar e pegar um token.
+      tags:
+        - Usuario
+      operationId: postUsuarioV1
+      requestBody:
+        description: Cadastro de novo usuario.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioRequestDTO'
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/usuario/{id}:
+    put:
+      summary: API de inclusão de novo usuário
+      description: Para utilizar as APIs é necessário logar e pegar um token.
+      tags:
+        - Usuario
+      operationId: putUsuarioV1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário a ser atualizado.
+          schema:
+            type: string
+            example: "123"
+      requestBody:
+        description: Cadastro de novo usuario.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUsuarioRequestDTO'
+
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/condominio:
+    get:
+      summary: API consulta de condominio
+      description: Essa API busca todos os condomínios.
+      tags:
+        - condominio
+      operationId: getCondominioV1
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/requiredPageSize'
+        - $ref: '#/components/parameters/requiredPageNumber'
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CondominioResponseWrapper'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /v1/cep:
     get:
       summary: API de autenticação
-      description: Para utilizar as Api's é necessario logar e pegar um token
+      description: Para utilizar as APIs é necessário logar e pegar um token.
       tags:
         - cep
       operationId: getCepV1
@@ -55,6 +130,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+
 components:
   securitySchemes:
     oAuth2ClientCredentials:
@@ -72,7 +148,7 @@ components:
       type: object
       properties:
         username:
-          description: Nome de usuário ou telefone
+          description: Nome de usuário ou telefone.
           type: string
           example: '18998224242'
         password:
@@ -82,49 +158,169 @@ components:
       required:
         - username
         - password
+
     LoginResposeDTO:
       type: object
       properties:
         accessToken:
-          description: Token gerado para utilizar nas api
+          description: Token gerado para utilizar nas APIs.
           type: string
-          example: >-
+          example: >
             eyJhbGciOiJSUzI1NieyJpc3MiOiJ2aWxhZ2JhY2tlbmQiLCJzdWIiOiIxIiwiZXhwIjoxN
         expiresIn:
-          description: Tempo ate expiração.
+          description: Tempo até expiração.
           type: integer
           example: 10800
       required:
         - accessToken
         - expiresIn
 
+    UsuarioRequestDTO:
+      type: object
+      properties:
+        nome:
+          description: Nome de usuário.
+          type: string
+          example: 'Jose da Silva Santos'
+        telefone:
+          description: Informe um telefone com DDD.
+          type: string
+          example: '189969692020'
+        email:
+          description: Informe um e-mail valido.
+          type: string
+          example: 'notifyme@teste.com'
+        password:
+          description: Informe uma senha.
+          type: string
+          example: '@FacaS3mP0ntA'
+      required:
+        - nome
+        - email
+        - telefone
+        - password
+
+    UpdateUsuarioRequestDTO:
+      type: object
+      properties:
+        nome:
+          description: Nome de usuário.
+          type: string
+          example: 'Jose da Silva Santos'
+        telefone:
+          description: Informe um telefone com DDD.
+          type: string
+          example: '189969692020'
+        email:
+          description: Informe um e-mail valido.
+          type: string
+          example: 'notifyme@teste.com'
+      required:
+        - nome
+        - email
+        - telefone
+        - password
+
     CepResponseDTO:
       type: object
       properties:
         cep:
-          description: Nome de usuário ou telefone
+          description: Código postal.
           type: string
-          example: '18998224242'
+          example: '01001000'
         logradouro:
-          description: Nome de usuário ou telefone
+          description: Logradouro.
           type: string
-          example: '18998224242'
+          example: 'Praça da Sé'
         complemento:
-          description: Nome de usuário ou telefone
+          description: Complemento.
           type: string
-          example: '18998224242'
+          example: 'lado ímpar'
         bairro:
-          description: Nome de usuário ou telefone
+          description: Bairro.
           type: string
-          example: '18998224242'
+          example: 'Sé'
         localidade:
-          description: Nome de usuário ou telefone
+          description: Cidade.
           type: string
-          example: '18998224242'
+          example: 'São Paulo'
         uf:
-          description: Nome de usuário ou telefone
+          description: Unidade Federativa.
           type: string
-          example: '18998224242'
+          example: 'SP'
+
+    PageResult:
+      type: object
+      properties:
+        pageable:
+          $ref: '#/components/schemas/PageableResult'
+        totalPages:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 1
+        pageNumber:
+          type: integer
+          example: 1
+        numberOfElements:
+          type: integer
+          example: 1
+        totalElements:
+          type: integer
+          format: int64
+          example: 1
+        last:
+          type: boolean
+          example: true
+        first:
+          type: boolean
+          example: true
+        hasNext:
+          type: boolean
+          example: true
+        hasPrevious:
+          type: boolean
+          example: true
+        empty:
+          type: boolean
+          example: true
+        sort:
+          $ref: '#/components/schemas/SortResult'
+
+    PageableResult:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          example: 0
+        pageSize:
+          type: integer
+          example: 5
+        offset:
+          type: integer
+          format: int64
+          example: 0
+        unpaged:
+          type: boolean
+          example: false
+        paged:
+          type: boolean
+          example: true
+
+    SortResult:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+          example: true
+        unsorted:
+          type: boolean
+          example: false
+        empty:
+          type: boolean
+          example: false
+
     Errors:
       type: object
       description: A collection of errors when processing a request.
@@ -133,6 +329,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+
     Error:
       type: object
       description: An error when processing a request.
@@ -146,15 +343,64 @@ components:
           type: string
           example: 'receiver.receiverTaxId: cannot be null'
         field:
-          description: The field or attribute the error is related with.
+          description: The field or attribute the error is related to.
           type: string
           example: receiver.receiverTaxId
         action:
-          description: 'Action that may be performed to solve the issue, if any.'
+          description: 'Action to solve the issue.'
           type: string
       required:
         - code
         - message
+
+    CondominioResponseWrapper:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CondominioInfoListResponse'
+
+    CondominioInfoListResponse:
+      allOf:
+        - type: object
+          properties:
+            condominios:
+              type: array
+              items:
+                $ref: '#/components/schemas/CondominioResponse'
+        - $ref: '#/components/schemas/PageResult'
+
+    CondominioResponse:
+      type: object
+      properties:
+        condominioId:
+          type: string
+          description: Id do Condominio.
+          example: '412b9323-E595-5ed9-a389-0938333b6fb1'
+        condominioNome:
+          type: string
+          description: Nome do Condominio
+          example: 'Condominio Solar das Palmeiras'
+        condominioCnpj:
+          type: string
+          description: CNPJ do Solar das Palmeiras.
+          example: '31577199000149'
+        condominioTelefone:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+        condominioEmail:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+        condominioCep:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+        condominioLogradouro:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+
   responses:
     BadRequest:
       description: Bad request.
@@ -162,42 +408,67 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
+
     InternalServerError:
       description: Internal server error.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
+
   parameters:
+    requiredPageSize:
+      name: pageSize
+      in: query
+      description: Size of the pages as required.
+      schema:
+        type: integer
+        minimum: 1
+      required: true
+      example: 25
+
+    requiredPageNumber:
+      name: pageNumber
+      in: query
+      description: Number of the current page as required.
+      schema:
+        type: integer
+        minimum: 0
+      required: true
+      example: 3
+
     estado:
-      description: Account number.
       name: estado
       in: query
+      description: Estado.
       schema:
         type: string
       required: true
+
     cidade:
-      description: Account number.
       name: cidade
       in: query
+      description: Cidade.
       schema:
         type: string
       required: true
+
     endereco:
-      description: Account number.
       name: endereco
       in: query
+      description: Endereço.
       schema:
         type: string
       required: true
+
     authorization:
       name: Authorization
       in: header
-      required: true
       description: A valid OAuth2 access token.
+      required: true
       schema:
         type: string
         pattern: Bearer .*
-        example: >-
+        example: >
           Bearer
-          eyJhbGciOiKERzI1NiJ9.eyJleGFtcGxlIjoiZXhhbXBsZSJ9.CIOhRRU_233iQxVsR-4dZH5OGTZgExJAvOx7kUMJlisB          
+          eyJhbGciOiKERzI1NiJ9.eyJleGFtcGxlIjoiZXhhbXBsZSJ9.CIOhRRU_233iQxVsR-4dZH5OGTZgExJAvOx7kUMJlisB

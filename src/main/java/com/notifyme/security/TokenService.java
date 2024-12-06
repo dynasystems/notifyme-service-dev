@@ -3,7 +3,7 @@ package com.notifyme.security;
 import com.notifyme.dto.login.LoginRequest;
 import com.notifyme.dto.login.LoginResponse;
 import com.notifyme.persistence.Role;
-import com.notifyme.services.PerfilService;
+import com.notifyme.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,7 +23,7 @@ import static java.util.Objects.isNull;
 @RequiredArgsConstructor
 public class TokenService {
 
-    private final PerfilService perfilService;
+    private final UsuarioService perfilService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
 

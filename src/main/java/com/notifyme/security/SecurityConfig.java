@@ -37,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/perfil/new-perfil").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/usuario").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/login").permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
