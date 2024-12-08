@@ -7,6 +7,7 @@ import com.notifyme.mapper.LoginMapper;
 import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.model.LoginResposeDTO;
 import com.notifyme.security.TokenService;
+import com.notifyme.services.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LoginApiDelegateImpl  implements AutenticacaoApiDelegate {
 
-    private final TokenService tokenService;
+    private final LoginService tokenService;
 
     @Override
     public ResponseEntity<LoginResposeDTO> postLoginV1(LoginRequestDTO loginRequestDTO)  {

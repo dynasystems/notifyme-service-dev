@@ -1,12 +1,10 @@
 package com.notifyme.controller;
 
-import com.notifyme.dto.perfil.*;
+import com.notifyme.dto.usuario.*;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.repository.UsuarioRepository;
-import com.notifyme.repository.RoleRepository;
 import com.notifyme.services.UsuarioService;
 import com.notifyme.utils.PageUtils;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,9 +31,6 @@ public class PerfilController {
     private UsuarioRepository perfilRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -43,7 +38,7 @@ public class PerfilController {
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('SCOPE_ADMINGERAL')")
-    public Map<String, Object> getAllPerfil(@ModelAttribute PerfilDto filter,
+    public Map<String, Object> getAllPerfil(@ModelAttribute UsuarioDto filter,
                                                             @RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size,
                                                             @RequestParam(defaultValue = "perfilNome, asc") String[] sort) {
@@ -52,25 +47,20 @@ public class PerfilController {
 
         Page<Usuario> perfilPage = service.findByFilter(filter, pageinSort);
         var perfilDto = perfilPage.getContent().stream()
-                .map(perfil -> mapper.map(perfil, PerfilDto.class)).collect(Collectors.toList());
+                .map(perfil -> mapper.map(perfil, UsuarioDto.class)).collect(Collectors.toList());
         var response = PageUtils.createResponse(perfilDto, perfilPage);
 
         return response;
     }
 
     @GetMapping ("/{id}")
-    public PerfilCompletoResponseDto findById (@PathVariable String id) {
+    public UsuarioCompletoResponseDto findById (@PathVariable String id) {
       return service.findByIdPerfilCompleto(id);
     }
 
-//    @Transactional
-//    @PostMapping("/new-perfil")
-//    public void newPerfil (@RequestBody CreatePerfilDto dto) {
-//        service.newPerfil(dto);
-//    }
 
     @PostMapping("/new-perfil-logado")
-    public void newPerfilLogado (@RequestBody CreatePerfilDto dto,
+    public void newPerfilLogado (@RequestBody CreateUsuarioDto dto,
                                    JwtAuthenticationToken token) {
         service.newPerfilLogado(dto, token);
     }

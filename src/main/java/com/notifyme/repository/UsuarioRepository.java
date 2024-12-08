@@ -1,6 +1,6 @@
 package com.notifyme.repository;
 
-import com.notifyme.dto.perfil.PerfilDto;
+import com.notifyme.dto.usuario.UsuarioDto;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
 import io.micrometer.common.util.StringUtils;
@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpecificationExecutor<Usuario> {
 
-    Optional<Usuario> findByEmail(String email);
+    UserDetails findByEmail(String email);
 
     @Query(value = "select p  from Usuario p where (p.telefone = :filter or p.email = : filter) and p.status = :status")
     Optional<Usuario> findPerfilPorTelefoneOrPerfilEmailAndPerfilAtivo(@Param("filter") String filter,
@@ -32,7 +33,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpec
 
     interface Specs {
 
-        static Specification<Usuario> byFilter(PerfilDto filtro) {
+        static Specification<Usuario> byFilter(UsuarioDto filtro) {
             return (root, query, builder) -> {
                 List<Predicate> predicates = new ArrayList<>();
 

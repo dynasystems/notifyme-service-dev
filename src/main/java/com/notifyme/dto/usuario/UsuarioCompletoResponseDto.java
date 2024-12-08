@@ -1,4 +1,4 @@
-package com.notifyme.dto.perfil;
+package com.notifyme.dto.usuario;
 
 import com.notifyme.dto.condominio.CondominioResponseDto;
 import lombok.Getter;
@@ -8,9 +8,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class PerfilCompletoResponseDto {
+public class UsuarioCompletoResponseDto {
 
-    private PerfilResponseDto perfilResponseDto;
+    private UsuarioResponseDto perfilResponseDto;
 
     private List<CondominioResponseDto> condominios;
 

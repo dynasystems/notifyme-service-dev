@@ -3,18 +3,30 @@ package com.notifyme.persistence;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.notifyme.dto.login.LoginRequest;
 import com.notifyme.persistence.converter.UsuarioStatusConverter;
+import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.util.Objects.nonNull;
+
 @Data
 @Entity
 @Table(name = "NM_USUARIO")
-public class Usuario {
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue
@@ -48,11 +60,43 @@ public class Usuario {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataAlteracao;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "NM_USUARIO_ROLE", joinColumns = @JoinColumn(name = "ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
-    private Set<Role> roles;
+    @Column(name = "ROLE")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
-    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(loginRequest.password(), this.password);
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(this.role == UserRole.ADMINGERAL) return List.of(new SimpleGrantedAuthority("ROLE_ADMINGERAL"),
+                                                            new SimpleGrantedAuthority("ROLE_ADMINCONDOMINIO"),
+                                                            new SimpleGrantedAuthority("ROLE_USUARIOCONDOMINIO"));
+        else if(this.role == UserRole.ADMINCONDOMINIO) return List.of(new SimpleGrantedAuthority("ROLE_ADMINCONDOMINIO"),
+                                                                 new SimpleGrantedAuthority("ROLE_USUARIOCONDOMINIO"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_USUARIOCONDOMINIO"));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -1,4 +1,4 @@
-package com.notifyme.dto.perfil;
+package com.notifyme.dto.usuario;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class PerfilDto {
+public class UsuarioDto {
 
 
     private Long perfilId;

@@ -1,25 +1,24 @@
 package com.notifyme.services;
 
-import com.notifyme.dto.perfil.*;
+import com.notifyme.dto.usuario.*;
 import com.notifyme.exception.PerfilException;
 import com.notifyme.persistence.Condominio;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.UsuarioCondominio;
-import com.notifyme.persistence.Role;
+import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
 import com.notifyme.repository.UsuarioRepository;
-import com.notifyme.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,10 +30,9 @@ public class UsuarioService {
     private final UsuarioRepository repository;
     private final CondominioService condominioService;
     private final PerfilCondominioService perfilCondominioService;
-    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public Page<Usuario> findByFilter (final PerfilDto filter, Pageable pageable) {
+    public Page<Usuario> findByFilter (final UsuarioDto filter, Pageable pageable) {
         return repository.findAll(UsuarioRepository.Specs.byFilter(filter), pageable);
 
     }
@@ -43,7 +41,7 @@ public class UsuarioService {
         return  repository.findById(UUID.fromString(id)).orElseThrow(() -> new PerfilException("Perfil não encontrado"));
     }
 
-    public PerfilCompletoResponseDto findByIdPerfilCompleto (String id) {
+    public UsuarioCompletoResponseDto findByIdPerfilCompleto (String id) {
         var perfil =  findById(id);
         var perfilCond = perfilCondominioService.findByCondominioPerfil(perfil);
         List<Condominio> condominios = perfilCond.stream().map(pf -> pf.getCondominio()).collect(Collectors.toList());
@@ -51,16 +49,15 @@ public class UsuarioService {
         var perfilDto = toDto(perfil);
         var condominioDto = condominios.stream().map(c -> condominioService.toCondominioDto(c)).collect(Collectors.toList());
 
-        PerfilCompletoResponseDto dto = new PerfilCompletoResponseDto();
+        UsuarioCompletoResponseDto dto = new UsuarioCompletoResponseDto();
         dto.setPerfilResponseDto(perfilDto);
         dto.setCondominios(condominioDto);
 
         return dto;
     }
 
-    public Usuario findByEmail (String email) {
-        return repository.findByEmail(email)
-                .orElseThrow(() -> new PerfilException("Perfil não encontrado"));
+    public UserDetails findByEmail (String email) {
+        return repository.findByEmail(email);
     }
 
     public Usuario findByIdPerfiPorTelefoneOrEmailAndStatusS(String filter) {
@@ -77,9 +74,8 @@ public class UsuarioService {
             if (usuarioExistente.isPresent()) {
                 throw new PerfilException("Usuário já cadastrado");
             }
-            var adminCondominioRole = roleRepository.findByName(Role.Values.ADMINCONDOMINIO.name());
             usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-            usuario.setRoles(Set.of(adminCondominioRole));
+            usuario.setRole(UserRole.ADMINCONDOMINIO);
             repository.save(usuario);
         } catch (Exception e) {
             log.error("Erro ao cadastrar usuario", e);
@@ -87,7 +83,24 @@ public class UsuarioService {
         }
     }
 
-    public void newPerfilLogado (CreatePerfilDto dto, JwtAuthenticationToken token) {
+    public void updateUsuario (@RequestBody Usuario usuario) {
+
+        try {
+            var usuarioExistente = repository.findByTelefoneOrEmail(usuario.getTelefone(), usuario.getEmail());
+
+            if (usuarioExistente.isPresent()) {
+                throw new PerfilException("Usuário já cadastrado");
+            }
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            usuario.setRole(UserRole.ADMINCONDOMINIO);
+            repository.save(usuario);
+        } catch (Exception e) {
+            log.error("Erro ao cadastrar usuario", e);
+            throw e;
+        }
+    }
+
+    public void newPerfilLogado (CreateUsuarioDto dto, JwtAuthenticationToken token) {
         //pegar usuario logado
         var perfilToken = findById(token.getName());
         //pegar o perfil
@@ -98,15 +111,13 @@ public class UsuarioService {
         var condominioResponse = condominioService.findById(dto.condominio());
         log.info("condominioRequest  " + condominioResponse.getId());
 
-        var role = roleRepository.findByName(dto.role());
-        log.info("role " + role.getName());
 
         var perfil = new Usuario();
         perfil.setNome(dto.nome());
         perfil.setTelefone(dto.telefone());
         perfil.setEmail(dto.email());
         perfil.setPassword(passwordEncoder.encode(dto.password()));
-        perfil.setRoles(Set.of(role));
+        perfil.setRole(UserRole.ADMINCONDOMINIO);
         var perfilSalvo = repository.save(perfil);
 
         UsuarioCondominio pfCondominio = new UsuarioCondominio();
@@ -131,17 +142,17 @@ public class UsuarioService {
 
     }
 
-    private PerfilResponseDto toDto(Usuario entity) {
-        PerfilResponseDto dto = new PerfilResponseDto();
-        dto.setPerfilId(entity.getId());
-        dto.setPerfilNome(entity.getNome());
-        dto.setPerfilTelefone(entity.getTelefone());
-        dto.setPerfilEmail(entity.getEmail());
-        dto.setPerfilFoto(entity.getFoto());
-        dto.setPerfilAtivo(entity.getStatus().name());
-        dto.setPerfilDataCadastro(entity.getDataCadastro());
-        dto.setPerfilDataAlteracao(entity.getDataAlteracao());
-        dto.setRoles(entity.getRoles());
+    private UsuarioResponseDto toDto(Usuario entity) {
+        UsuarioResponseDto dto = new UsuarioResponseDto();
+        dto.setId(entity.getId());
+        dto.setNome(entity.getNome());
+        dto.setTelefone(entity.getTelefone());
+        dto.setEmail(entity.getEmail());
+        dto.setFoto(entity.getFoto());
+        dto.setAtivo(entity.getStatus().name());
+        dto.setDataCadastro(entity.getDataCadastro());
+        dto.setDataAlteracao(entity.getDataAlteracao());
+        dto.setRole(entity.getRole());
         return dto;
     }
 }
