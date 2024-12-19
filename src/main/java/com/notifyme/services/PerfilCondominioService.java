@@ -1,6 +1,6 @@
 package com.notifyme.services;
 
-import com.notifyme.exception.PerfilException;
+import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.UsuarioCondominio;
 import com.notifyme.repository.PerfilCondominioRepository;
@@ -17,7 +17,7 @@ public class PerfilCondominioService {
     private PerfilCondominioRepository repository;
 
     public UsuarioCondominio findById(String id) {
-       return repository.findById(UUID.fromString(id)).orElseThrow(() -> new PerfilException("Perfil condominio não encontrado não encontrado"));
+       return repository.findById(UUID.fromString(id)).orElseThrow(UsuarioNotFoundException::new);
     }
     public List<UsuarioCondominio> findByCondominioPerfil(Usuario perfil) {
         return repository.findByUsuario(perfil);

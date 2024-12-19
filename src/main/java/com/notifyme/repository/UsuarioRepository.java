@@ -22,7 +22,7 @@ import java.util.UUID;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpecificationExecutor<Usuario> {
 
-    UserDetails findByEmail(String email);
+    Optional<Usuario> findByEmail(String email);
 
     @Query(value = "select p  from Usuario p where (p.telefone = :filter or p.email = : filter) and p.status = :status")
     Optional<Usuario> findPerfilPorTelefoneOrPerfilEmailAndPerfilAtivo(@Param("filter") String filter,

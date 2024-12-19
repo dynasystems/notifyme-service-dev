@@ -26,9 +26,6 @@ public class UsuarioApiDelegateImpl implements UsuarioApiDelegate {
 
     @Override
     public ResponseEntity<Void> putUsuarioV1(String id, UpdateUsuarioRequestDTO updateUsuarioRequestDTO) {
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 }

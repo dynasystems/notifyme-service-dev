@@ -1,16 +1,16 @@
-package com.notifyme.exception;
+package com.notifyme.error.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class PerfilException extends RuntimeException {
+public class InvoiceException extends RuntimeException {
 
-    public PerfilException(String message){
+    public InvoiceException(String message){
         super(message);
     }
 
-    public PerfilException(String message, Throwable cause){
+    public InvoiceException(String message, Throwable cause){
         super(message, cause);
     }
 

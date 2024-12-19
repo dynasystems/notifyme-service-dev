@@ -1,13 +1,20 @@
-package com.notifyme.exception;
+package com.notifyme.error;
 
+import com.notifyme.error.exceptions.NotifyMeException;
+import com.notifyme.error.exceptions.ResourceNotFoundException;
 import com.notifyme.model.Error;
 import com.notifyme.model.Errors;
+import io.micrometer.common.util.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,12 +25,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @ControllerAdvice
-public class ControllerExceptionHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+public class NotifyMeExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Errors> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
@@ -32,6 +38,19 @@ public class ControllerExceptionHandler {
         Error error = new Error(HttpStatus.NOT_FOUND.toString(), ex.getMessage());
         errors.addErrorItem(error);
         return new ResponseEntity<Errors>(errors, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NotifyMeException.class)
+    public ResponseEntity<Errors> handleBusinessException(NotifyMeException e) {
+
+        Error error = new Error();
+        error.setCode(e.getErrorCode());
+        error.setMessage(e.getMessage());
+
+        Errors errors = new Errors();
+        errors.addErrorItem(error);
+
+        return new ResponseEntity<Errors>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -47,6 +66,7 @@ public class ControllerExceptionHandler {
 
         return new ResponseEntity<Errors>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Errors> missingServletRequestParameterException(MissingServletRequestParameterException e) {
@@ -110,10 +130,34 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorMessage> handler(ConstraintViolationException ex, WebRequest request) {
-        ErrorMessage message = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.toString());
+    public ResponseEntity<Errors> handleConstraintViolationException(ConstraintViolationException e) {
+        log.debug("Got ConstraintViolationException when processing request", e);
 
-        return new ResponseEntity<ErrorMessage>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (Stream.of(e.getConstraintViolations()).findAny().isPresent()) {
+
+            Errors errors = new Errors();
+
+            for (ConstraintViolation<?> constraint : e.getConstraintViolations()) {
+
+                String propertyPath = extractPropertyPath(constraint);
+
+                String finalMessage = propertyPath + ": " + constraint.getMessage();
+
+                NotifyMeException businessException = new NotifyMeException(NotifyMeErrorEnum.MISSING_REQUIRED_PARAMETER,finalMessage);
+
+                Error error = new Error();
+                error.setCode(businessException.getErrorCode());
+                error.setMessage(businessException.getMessage());
+                error.setField(propertyPath);
+
+                errors.addErrorItem(error);
+            }
+
+            return new ResponseEntity<Errors>(errors, HttpStatus.BAD_REQUEST);
+
+        } else {
+            return defaultResponseError(e);
+        }
     }
 
     private ResponseEntity<Errors> defaultResponseError(Exception e) {
@@ -127,5 +171,19 @@ public class ControllerExceptionHandler {
         errors.addErrorItem(error);
 
         return new ResponseEntity<Errors>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    private String extractPropertyPath(ConstraintViolation<?> constraint) {
+
+        String propertyPath = constraint.getPropertyPath() != null ?
+                constraint.getPropertyPath().toString() : null;
+
+        String[] splittedPropertyPath = StringUtils.isNotBlank(propertyPath) ? propertyPath.split("\\.") : null;
+
+        if (Stream.of(splittedPropertyPath).findAny().isPresent()) {
+            propertyPath = splittedPropertyPath[1];
+        }
+
+        return propertyPath;
     }
 }

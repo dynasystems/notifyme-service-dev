@@ -1,4 +1,4 @@
-package com.notifyme.exception;
+package com.notifyme.error.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

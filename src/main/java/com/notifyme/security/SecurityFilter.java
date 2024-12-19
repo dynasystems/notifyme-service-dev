@@ -1,6 +1,7 @@
 package com.notifyme.security;
 
 import com.notifyme.repository.UsuarioRepository;
+import com.notifyme.services.UsuarioService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +21,14 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
         if (token != null) {
           var subject = tokenService.validateToken(token.toString());
-            UserDetails user = usuarioRepository.findByEmail(subject);
+            UserDetails user = usuarioService.findByEmail(subject);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

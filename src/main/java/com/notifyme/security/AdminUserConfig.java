@@ -4,7 +4,9 @@ import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
 import com.notifyme.repository.UsuarioRepository;
+import com.notifyme.services.UsuarioService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -13,18 +15,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import static java.util.Objects.nonNull;
 
 @Configuration
+@RequiredArgsConstructor
 public class AdminUserConfig implements CommandLineRunner {
 
-    @Autowired
-    private UsuarioRepository perfilRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UsuarioService usuarioService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-      var perfilAdmin = perfilRepository.findByEmail("vilag@gmail.com");
+      var perfilAdmin = usuarioService.findByEmail("vilag@gmail.com");
 
       if(nonNull(perfilAdmin)) {
           System.out.println("admin já existe");
@@ -36,7 +36,7 @@ public class AdminUserConfig implements CommandLineRunner {
           perfil.setPassword(passwordEncoder.encode("123456"));
           perfil.setRole(UserRole.ADMINGERAL);
           perfil.setStatus(UsuarioStatusEnum.ATIVO);
-          perfilRepository.save(perfil);
+          usuarioService.save(perfil);
       }
     }
 }

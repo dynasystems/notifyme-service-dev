@@ -1,12 +1,8 @@
 package com.notifyme.services;
 
 import com.notifyme.dto.condominio.CondominioResponseDto;
-import com.notifyme.dto.condominio.CondominioRequest;
-import com.notifyme.dto.condominio.CondominioResponse;
-import com.notifyme.exception.PerfilException;
+import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.persistence.Condominio;
-import com.notifyme.persistence.UsuarioCondominio;
-import com.notifyme.persistence.enumated.CondominioStatusEnum;
 import com.notifyme.repository.CondominioRepository;
 import com.notifyme.repository.PerfilCondominioRepository;
 import org.apache.logging.log4j.LogManager;
@@ -14,10 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -35,7 +29,7 @@ public class CondominioService {
     private PerfilCondominioRepository perfilCondominioRepository;
 
     public Condominio findById (String id) {
-        return repository.findById(UUID.fromString(id)).orElseThrow(() -> new PerfilException("Condoninio não encontrado"));
+        return repository.findById(UUID.fromString(id)).orElseThrow(UsuarioNotFoundException::new);
     }
 
     public Page<Condominio> findByFilter (final CondominioResponseDto filter, Pageable pageable) {

@@ -1,4 +1,4 @@
-package com.notifyme.exception;
+package com.notifyme.error.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

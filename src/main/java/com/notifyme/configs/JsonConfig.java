@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class JsonConfig {
@@ -13,4 +14,5 @@ public class JsonConfig {
         builder.serializationInclusion(JsonInclude.Include.NON_NULL);
         return builder;
     }
+
 }
