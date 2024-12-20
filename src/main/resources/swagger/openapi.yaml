@@ -194,11 +194,19 @@ components:
           description: Informe uma senha.
           type: string
           example: '@FacaS3mP0ntA'
+        cpf:
+          description: Informe um cpf válido.
+          pattern: "^[0-9]{11}$"
+          type: string
+          example: '79222300017'
+          minLength: 11
+          maxLength: 11
       required:
         - nome
         - email
         - telefone
         - password
+        - cpf
 
     UpdateUsuarioRequestDTO:
       type: object

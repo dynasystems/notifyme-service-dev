@@ -1,8 +1,11 @@
 package com.notifyme.services;
 
 import com.notifyme.dto.usuario.*;
+import com.notifyme.error.NotifyMeErrorEnum;
+import com.notifyme.error.exceptions.CustomException;
 import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.persistence.Condominio;
+import com.notifyme.persistence.Notificacao;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.UsuarioCondominio;
 import com.notifyme.persistence.enumated.UserRole;
@@ -15,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -27,137 +31,77 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
-    private final CondominioService condominioService;
-    private final PerfilCondominioService perfilCondominioService;
     private final PasswordUtils passwordUtils;
+    private final NotificacaoService notificacaoService;
 
     public void save (Usuario usuario) {
         repository.save(usuario);
-    }
-
-    public Page<Usuario> findByFilter (final UsuarioDto filter, Pageable pageable) {
-        return repository.findAll(UsuarioRepository.Specs.byFilter(filter), pageable);
     }
 
     public Usuario findById (String id) {
         return  repository.findById(UUID.fromString(id)).orElseThrow(UsuarioNotFoundException::new);
     }
 
-    public UsuarioCompletoResponseDto findByIdPerfilCompleto (String id) {
-        var perfil =  findById(id);
-        var perfilCond = perfilCondominioService.findByCondominioPerfil(perfil);
-        List<Condominio> condominios = perfilCond.stream().map(pf -> pf.getCondominio()).collect(Collectors.toList());
-
-        var perfilDto = toDto(perfil);
-        var condominioDto = condominios.stream().map(c -> condominioService.toCondominioDto(c)).collect(Collectors.toList());
-
-        UsuarioCompletoResponseDto dto = new UsuarioCompletoResponseDto();
-        dto.setPerfilResponseDto(perfilDto);
-        dto.setCondominios(condominioDto);
-
-        return dto;
-    }
-
     public Usuario findByEmail (String email) {
-        Usuario user = repository.findByEmail(email).orElseThrow(UsuarioNotFoundException::new);
-        return user;
+        return repository.findByEmail(email).orElseThrow(UsuarioNotFoundException::new);
     }
 
-    public Usuario findByIdPerfiPorTelefoneOrEmailAndStatusS(String filter) {
-        log.info("filter " + filter);
-        return repository.findPerfilPorTelefoneOrPerfilEmailAndPerfilAtivo(filter, UsuarioStatusEnum.ATIVO)
-                .orElseThrow(UsuarioNotFoundException::new);
+    public Usuario findByEmailOrTelefoneAndStatus(String userName) {
+        return repository.findByTelefoneOrEmailAndStatus(userName, UsuarioStatusEnum.ATIVO).orElseThrow(UsuarioNotFoundException::new);
     }
 
-    public void newUsuario (@RequestBody Usuario usuario) {
+    @Transactional
+    public void newUsuario(Usuario usuario) {
 
         try {
-            var usuarioExistente = repository.findByTelefoneOrEmail(usuario.getTelefone(), usuario.getEmail());
-
-            if (usuarioExistente.isPresent()) {
-                throw new UsuarioNotFoundException();
-            }
+            validaUsuario(usuario);
             usuario.setPassword(passwordUtils.encode(usuario.getPassword()));
+            usuario.setStatus(UsuarioStatusEnum.PENDENTE_DE_VALIDACAO);
             usuario.setRole(UserRole.ADMINCONDOMINIO);
             repository.save(usuario);
+
+            Notificacao notificacao = new Notificacao();
+            notificacao.setUsuario(usuario);
+            notificacaoService.save(notificacao);
+
         } catch (Exception e) {
-            log.error("Erro ao cadastrar usuario", e);
+            log.error("Erro ao cadastrar usuario e/ou notificação", e);
             throw e;
         }
     }
 
-    public void updateUsuario (@RequestBody Usuario usuario) {
+    private void validaUsuario(Usuario usuario) {
+        var usuarioExistente = repository.findByTelefoneOrEmailOrCpf(usuario.getTelefone(), usuario.getEmail(), usuario.getCpf());
 
-        try {
-            var usuarioExistente = repository.findByTelefoneOrEmail(usuario.getTelefone(), usuario.getEmail());
-
-            if (usuarioExistente.isPresent()) {
-                throw new UsuarioNotFoundException();
+        if (usuarioExistente.isPresent()) {
+            if (usuarioExistente.get().getCpf().equals(usuario.getCpf())) {
+                throw new CustomException(NotifyMeErrorEnum.CUSTOM_USARIO_EXCEPTION, "CPF");
             }
-            usuario.setPassword(passwordUtils.encode(usuario.getPassword()));
-            usuario.setRole(UserRole.ADMINCONDOMINIO);
-            repository.save(usuario);
-        } catch (Exception e) {
-            log.error("Erro ao cadastrar usuario", e);
-            throw e;
+            if (usuarioExistente.get().getEmail().equals(usuario.getEmail())) {
+                throw new CustomException(NotifyMeErrorEnum.CUSTOM_USARIO_EXCEPTION, "e-mail");
+            }
+            if (usuarioExistente.get().getTelefone().equals(usuario.getTelefone())) {
+                throw new CustomException(NotifyMeErrorEnum.CUSTOM_USARIO_EXCEPTION, "telefone");
+            }
         }
     }
 
-    public void newPerfilLogado (CreateUsuarioDto dto, JwtAuthenticationToken token) {
-        //pegar usuario logado
-        var perfilToken = findById(token.getName());
-        //pegar o perfil
-        var condominio = perfilCondominioService.findByCondominioPerfil(perfilToken);
-        List<Condominio> listCond = condominio.stream().map(UsuarioCondominio::getCondominio).toList();
-        log.info("perfilCond  " + listCond);
-
-        var condominioResponse = condominioService.findById(dto.condominio());
-        log.info("condominioRequest  " + condominioResponse.getId());
-
-
-        var perfil = new Usuario();
-        perfil.setNome(dto.nome());
-        perfil.setTelefone(dto.telefone());
-        perfil.setEmail(dto.email());
-        perfil.setPassword(passwordUtils.encode(dto.password()));
-        perfil.setRole(UserRole.ADMINCONDOMINIO);
-        var perfilSalvo = repository.save(perfil);
-
-        UsuarioCondominio pfCondominio = new UsuarioCondominio();
-        pfCondominio.setUsuario(perfilSalvo);
-        pfCondominio.setCondominio(condominioResponse);
-        log.info("pfCondominio " + pfCondominio.toString());
-
-        perfilCondominioService.save(pfCondominio);
-
-    }
-
-    private void verificaPerfilParaCondominio(String condominioId, JwtAuthenticationToken token) {
-        //pegar usuario logado
-        var perfilToken = findById(token.getName());
-        //pegar o perfil
-        var condominio = perfilCondominioService.findByCondominioPerfil(perfilToken);
-        List<Condominio> listCond = condominio.stream().map(UsuarioCondominio::getCondominio).toList();
-        log.info("perfilCond  " + listCond);
-
-        var condominioRequest = condominioService.findById(condominioId);
-        log.info("condominioRequest  " + condominioRequest.getId());
-
-    }
-
-    private UsuarioResponseDto toDto(Usuario entity) {
-        UsuarioResponseDto dto = new UsuarioResponseDto();
-        dto.setId(entity.getId());
-        dto.setNome(entity.getNome());
-        dto.setTelefone(entity.getTelefone());
-        dto.setEmail(entity.getEmail());
-        dto.setFoto(entity.getFoto());
-        dto.setAtivo(entity.getStatus().name());
-        dto.setDataCadastro(entity.getDataCadastro());
-        dto.setDataAlteracao(entity.getDataAlteracao());
-        dto.setRole(entity.getRole());
-        return dto;
-    }
+//    public void updateUsuario (@RequestBody Usuario usuario) {
+//
+//        try {
+//            var usuarioExistente = repository.findByTelefoneOrEmail(usuario.getTelefone(), usuario.getEmail());
+//
+//            if (usuarioExistente.isPresent()) {
+//                throw new UsuarioNotFoundException();
+//            }
+//            usuario.setPassword(passwordUtils.encode(usuario.getPassword()));
+//            usuario.setRole(UserRole.ADMINCONDOMINIO);
+//            repository.save(usuario);
+//        } catch (Exception e) {
+//            log.error("Erro ao cadastrar usuario", e);
+//            throw e;
+//        }
+//    }
 }
 
 

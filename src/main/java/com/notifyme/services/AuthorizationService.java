@@ -1,6 +1,5 @@
 package com.notifyme.services;
 
-import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +15,9 @@ public class AuthorizationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDetails user = usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+        UserDetails user = usuarioRepository.findByEmail(username)
+                .or(() -> usuarioRepository.findByTelefone(username))
+                .or(() -> usuarioRepository.findByCpf(username)).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
         return user;
     }
 }

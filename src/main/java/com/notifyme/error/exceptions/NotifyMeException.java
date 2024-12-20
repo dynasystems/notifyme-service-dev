@@ -7,9 +7,9 @@ public class NotifyMeException extends RuntimeException {
     private final NotifyMeErrorEnum notifyMeErrorTypeEnum;
     private final Object[] params;
 
-    public NotifyMeException(NotifyMeErrorEnum mpError, Object... params) {
-        super(mpError.format(params));
-        this.notifyMeErrorTypeEnum = mpError;
+    public NotifyMeException(NotifyMeErrorEnum notifyMeErrorTypeEnum, Object... params) {
+        super(notifyMeErrorTypeEnum.format(params));
+        this.notifyMeErrorTypeEnum = notifyMeErrorTypeEnum;
         this.params = params;
     }
 

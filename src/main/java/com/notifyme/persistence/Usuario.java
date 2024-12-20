@@ -42,6 +42,9 @@ public class Usuario implements UserDetails {
     @Column(name = "EMAIL", unique = true)
     private String email;
 
+    @Column(name = "CPF", unique = true)
+    private String cpf;
+
     @Column(name = "PASSWORD")
     private String password;
 
@@ -50,7 +53,7 @@ public class Usuario implements UserDetails {
 
     @Column(name = "STATUS")
     @Convert(converter = UsuarioStatusConverter.class)
-    private UsuarioStatusEnum status = UsuarioStatusEnum.ATIVO;
+    private UsuarioStatusEnum status;
 
     @Column(name = "DATA_CADASTRO")
     @JsonFormat(pattern = "dd/MM/yyyy")
@@ -77,7 +80,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return this.email;
     }
 
     @Override

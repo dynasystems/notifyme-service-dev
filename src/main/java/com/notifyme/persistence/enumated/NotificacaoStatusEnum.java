@@ -1,14 +1,13 @@
 package com.notifyme.persistence.enumated;
 
-public enum UsuarioStatusEnum {
-    INATIVO(0),
-    ATIVO(1),
-    BLOQUEADO(2),
-    PENDENTE_DE_VALIDACAO(3);
+public enum NotificacaoStatusEnum {
+    PENDENTE(0),
+    ENVIADO(1),
+    FALHA(2);
 
     private int status;
 
-    UsuarioStatusEnum(int status) {
+    NotificacaoStatusEnum(int status) {
         this.status = status;
     }
 
@@ -16,8 +15,8 @@ public enum UsuarioStatusEnum {
         return this.status;
     }
 
-    public static UsuarioStatusEnum valueOf(int value) {
-        for (UsuarioStatusEnum type : UsuarioStatusEnum.values()) {
+    public static NotificacaoStatusEnum valueOf(int value) {
+        for (NotificacaoStatusEnum type : NotificacaoStatusEnum.values()) {
             if (value == type.getType()) {
                 return type;
             }

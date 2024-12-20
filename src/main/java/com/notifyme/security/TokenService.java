@@ -3,6 +3,8 @@ package com.notifyme.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.notifyme.dto.login.LoginRequest;
+import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.persistence.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +27,16 @@ public class TokenService {
     @Value("${jwt.public.key}")
     private RSAPublicKey publicKey;
 
-    public String generatedToken(Usuario usuario) {
+    @Value("${jwt.private.key}")
+    private RSAPrivateKey privateKey;
+
+    public String generatedToken(Usuario usuario, LoginRequestDTO loginRequest) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(publicKey.toString());
+            Algorithm algorithm = Algorithm.RSA256(null, privateKey);
             String token = JWT.create()
                     .withIssuer("notify-api")
-                    .withSubject(usuario.getUsername())
+                    .withSubject(loginRequest.getUsername())
                     .withExpiresAt(genExpirationDate())
-                    .withClaim("img", usuario.getFoto())
                     .withClaim("role", usuario.getRole().getRole())
                     .sign(algorithm);
             return token;
@@ -42,16 +46,12 @@ public class TokenService {
     }
 
     public String validateToken(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(publicKey.toString());
-            return JWT.require(algorithm)
-                    .withIssuer("notify-api")
-                    .build()
-                    .verify(token)
-                    .getSubject();
-        } catch (JWTVerificationException exception) {
-            return "";
-        }
+        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+        return JWT.require(algorithm)
+                .withIssuer("notify-api")
+                .build()
+                .verify(token)
+                .getSubject();
     }
 
     private Instant genExpirationDate() {

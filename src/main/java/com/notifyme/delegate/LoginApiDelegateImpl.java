@@ -21,8 +21,7 @@ public class LoginApiDelegateImpl  implements AutenticacaoApiDelegate {
 
     @Override
     public ResponseEntity<LoginResposeDTO> postLoginV1(LoginRequestDTO loginRequestDTO)  {
-        final LoginRequest loginRequest = LoginMapper.INSTANCE.convert(loginRequestDTO);
-        final LoginResposeDTO loginResposeDTO = LoginMapper.INSTANCE.convertToResponseDTO(tokenService.login(loginRequest));
+        final LoginResposeDTO loginResposeDTO = LoginMapper.INSTANCE.convertToResponseDTO(tokenService.login(loginRequestDTO));
 
         return ResponseEntity.status(HttpStatus.OK).body(loginResposeDTO);
     }

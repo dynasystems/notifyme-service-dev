@@ -1,5 +1,6 @@
 package com.notifyme.security;
 
+import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
@@ -24,19 +25,19 @@ public class AdminUserConfig implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-      var perfilAdmin = usuarioService.findByEmail("vilag@gmail.com");
-
-      if(nonNull(perfilAdmin)) {
+      try {
+          var perfilAdmin = usuarioService.findByEmail("vilag@gmail.com");
           System.out.println("admin já existe");
-      } else {
-          var perfil = new Usuario();
-          perfil.setNome("Vilag");
-          perfil.setTelefone("18996962073");
-          perfil.setEmail("vilag@gmail.com");
-          perfil.setPassword(passwordEncoder.encode("123456"));
-          perfil.setRole(UserRole.ADMINGERAL);
-          perfil.setStatus(UsuarioStatusEnum.ATIVO);
-          usuarioService.save(perfil);
+      } catch (UsuarioNotFoundException e) {
+          var usuario = new Usuario();
+          usuario.setNome("Vilag");
+          usuario.setTelefone("18996962073");
+          usuario.setEmail("vilag@gmail.com");
+          usuario.setCpf("79222300017");
+          usuario.setPassword(passwordEncoder.encode("123456"));
+          usuario.setRole(UserRole.ADMINGERAL);
+          usuario.setStatus(UsuarioStatusEnum.ATIVO);
+          usuarioService.save(usuario);
       }
     }
 }
