@@ -6,7 +6,9 @@ public enum NotifyMeErrorEnum {
     USUARIO_NAO_ENCONTRADO("NM-003","Usuário não encontrado"),
     CREDENCIAIS_INVALIDA("NM-004","Credenciais inválidas"),
     USUARIO_EXISTENTE("NM-005","Usuário já existente"),
-    CUSTOM_USARIO_EXCEPTION("NM-006","O %s já está em uso");
+    CUSTOM_USARIO_EXCEPTION("NM-006","O %s já está em uso"),
+    CPF_USUARIO_INVALIDO("NM-007","O %s é inválido"),
+    ERRO_AO_CARREGAR_TEMPLATE("NM-008","Erro ao carregar template");
 
     private String code;
     private String message;

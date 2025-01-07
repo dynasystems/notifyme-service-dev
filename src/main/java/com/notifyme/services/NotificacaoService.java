@@ -1,10 +1,14 @@
 package com.notifyme.services;
 
 import com.notifyme.persistence.Notificacao;
+import com.notifyme.persistence.Usuario;
+import com.notifyme.persistence.enumated.NotificacaoStatusEnum;
 import com.notifyme.repository.NotificacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -15,5 +19,9 @@ public class NotificacaoService {
 
     public void save(Notificacao notificacao) {
         repository.save(notificacao);
+    }
+
+    public Notificacao getNotificacao(Usuario usuario, NotificacaoStatusEnum status) {
+        return  repository.findByUsuarioAndStatus(usuario, status);
     }
 }

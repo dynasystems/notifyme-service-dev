@@ -1,5 +1,6 @@
 package com.notifyme.configs;
 
+import com.notifyme.configs.properties.DataSourceProperties;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.Flyway;
 import org.springframework.context.annotation.Bean;

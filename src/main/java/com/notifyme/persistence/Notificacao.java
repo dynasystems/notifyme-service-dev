@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Data
 @Entity
+@ToString
 @Table(name = "NM_NOTIFICACAO")
 public class Notificacao {
 

@@ -1,4 +1,4 @@
-package com.notifyme.configs;
+package com.notifyme.configs.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
