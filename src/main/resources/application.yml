@@ -30,13 +30,18 @@ spring:
 
 notifyme:
   notification-email:
-    active: true
+    active: false
     verification-time-in-seconds: 45
+
+s3storage-service:
+  endpointUrl: https://br-se1.magaluobjects.com/notifyme-images
+  access-key: 68d7c63b-0bdc-4c9b-857d-c79f292c9933
+  secret-key: ddd0437f-2938-41ea-915e-de38294f3e2c
 
 app:
   version: #project.version#
 server:
   servlet:
-    context-path: /vilag-api
+    context-path: /notifyme-api
   port: 8091
 

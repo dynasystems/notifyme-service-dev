@@ -55,13 +55,21 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /v1/usuario/editar:
+  /v1/usuario/{id}:
     put:
       summary: API de edição de usuário
       description: Para utilizar as APIs é necessário logar e pegar um token.
       tags:
         - Usuario
       operationId: putUsuarioV1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário a ser atualizado.
+          schema:
+            type: string
+            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
       requestBody:
         description: Edição de usuário.
         required: true
@@ -77,28 +85,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /v1/usuario/editar/foto:
-    put:
-      summary: API de edição de usuário
-      description: Para utilizar as APIs é necessário logar e pegar um token.
-      tags:
-        - Usuario
-      operationId: putUsuarioFotoPerfilV1
-      requestBody:
-        description: Edição de usuário.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUsuarioFotoPerfilRequestDTO'
 
-      responses:
-        '200':
-          description: Success response
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /v1/usuario/deletar/{id}:
     delete:
       summary: API de edição de usuário
@@ -163,6 +150,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CepResponseDTO'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/upload/foto-perfil/{id}:
+    post:
+      summary: API de edição de usuário
+      description: Para utilizar as APIs é necessário logar e pegar um token.
+      tags:
+        - Upload
+      operationId: upFotoPerfilV1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário a ser atualizado.
+          schema:
+            type: string
+            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+
+      requestBody:
+        description: Edição de usuário.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FotoPerfilRequestDTO'
+
+      responses:
+        '200':
+          description: Success response
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
@@ -248,10 +267,6 @@ components:
     UpdateUsuarioRequestDTO:
       type: object
       properties:
-        id:
-          description: Id do usuário.
-          type: string
-          example: 'fswfwefwe23ffasdfwe4r2dqw1'
         nome:
           description: Nome de usuário.
           type: string
@@ -282,20 +297,17 @@ components:
           example: '1'
       required:
         - id
-    UpdateUsuarioFotoPerfilRequestDTO:
+
+    FotoPerfilRequestDTO:
       type: object
       properties:
-        id:
-          description: Id do usuário.
-          type: string
-          example: 'fswfwefwe23ffasdfwe4r2dqw1'
-        foto:
+        fotoPerfil:
           description: Foto de Perfil de usuário.
           type: string
+          format: binary
           example: 'https://editor.swagger.io/'
       required:
-        - id
-        - foto
+        - fotoPerfil
 
     CepResponseDTO:
       type: object

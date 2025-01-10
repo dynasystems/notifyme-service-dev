@@ -8,7 +8,11 @@ public enum NotifyMeErrorEnum {
     USUARIO_EXISTENTE("NM-005","Usuário já existente"),
     CUSTOM_USARIO_EXCEPTION("NM-006","O %s já está em uso"),
     CPF_USUARIO_INVALIDO("NM-007","O %s é inválido"),
-    ERRO_AO_CARREGAR_TEMPLATE("NM-008","Erro ao carregar template");
+    ERRO_AO_CARREGAR_TEMPLATE("NM-008","Erro ao carregar template"),
+    FALHA_AO_CRIAR_DIRETORIO("NM-009"," Falha ao criar diretório de arquivos"),
+    ERRO_AO_SALVAR_ARQUIVO("NM-010"," Erro ao salvar Arquivo: %s"),
+    ERRO_AO_EXCLUIR_ARQUIVO("NM-010"," Erro ao excluir Arquivo: %s");
+
 
     private String code;
     private String message;

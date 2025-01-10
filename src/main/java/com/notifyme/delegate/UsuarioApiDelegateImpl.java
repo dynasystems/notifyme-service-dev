@@ -24,10 +24,11 @@ public class UsuarioApiDelegateImpl implements UsuarioApiDelegate {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> putUsuarioV1(UpdateUsuarioRequestDTO updateUsuarioRequestDTO) {
-        usuarioService.updateUsuario(updateUsuarioRequestDTO);
+    public ResponseEntity<Void> putUsuarioV1(String id, UpdateUsuarioRequestDTO updateUsuarioRequestDTO) {
+        usuarioService.updateUsuario(id, updateUsuarioRequestDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     public ResponseEntity<Void> deleteUsuario(String id) {
         usuarioService.deleteUsuario(id);
