@@ -8,7 +8,9 @@ public enum NotifyMeErrorEnum {
     USUARIO_EXISTENTE("NM-005","Usuário já existente"),
     CUSTOM_USARIO_EXCEPTION("NM-006","O %s já está em uso"),
     CPF_USUARIO_INVALIDO("NM-007","O %s é inválido"),
-    ERRO_AO_CARREGAR_TEMPLATE("NM-008","Erro ao carregar template");
+    ERRO_AO_CARREGAR_TEMPLATE("NM-008","Erro ao carregar template"),
+    TOKEN_INVALIDO("NM-009","Token inválido ou expirado."),
+    TOKEN_JA_VALIDADO("NM-009","Token já validado.");
 
     private String code;
     private String message;

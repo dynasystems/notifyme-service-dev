@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Data
@@ -41,7 +42,7 @@ public class Notificacao {
     private NotificacaoStatusEnum status = NotificacaoStatusEnum.PENDENTE;
 
     @Column(name = "DATA_CADASTRO")
-    private LocalDateTime dataCadastro = LocalDateTime.now();
+    private LocalDateTime dataCadastro = LocalDateTime.now(ZoneOffset.UTC);
 
     @Column(name = "DATA_ENVIO")
     private LocalDateTime dataEnvio;

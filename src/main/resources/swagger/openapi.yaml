@@ -54,6 +54,34 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/usuario/valida-token:
+    post:
+      summary: Valida um token de ativação e ativa o usuário
+      description: Verifica se o token é válido e ativa o cadastro do usuário.
+      tags:
+        - Usuario
+      operationId: postUsuarioValidaTokenV1
+      requestBody:
+        description: Informe o token recebido via e-mail para validar seu cadastro.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Token único para validação.
+                  example: 123e4567-e89b-12d3-a456-426614174000
+              required:
+                - token
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /v1/usuario/editar:
     put:
