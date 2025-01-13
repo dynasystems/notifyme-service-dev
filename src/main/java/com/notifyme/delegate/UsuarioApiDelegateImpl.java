@@ -2,9 +2,11 @@ package com.notifyme.delegate;
 
 import com.notifyme.controller.UsuarioApiDelegate;
 import com.notifyme.mapper.UsuarioMapper;
+import com.notifyme.model.PostUsuarioValidaTokenV1Request;
 import com.notifyme.model.UpdateUsuarioRequestDTO;
 import com.notifyme.model.UsuarioRequestDTO;
 import com.notifyme.persistence.Usuario;
+import com.notifyme.services.UsuarioActivationService;
 import com.notifyme.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,11 +18,12 @@ import org.springframework.stereotype.Service;
 public class UsuarioApiDelegateImpl implements UsuarioApiDelegate {
 
     private final UsuarioService usuarioService;
+    private final UsuarioActivationService usuarioActivationService;
 
     @Override
     public ResponseEntity<Void> postUsuarioV1(UsuarioRequestDTO usuarioRequestDTO) {
         Usuario newUsuario = UsuarioMapper.INSTANCE.convert(usuarioRequestDTO);
-        usuarioService.newUsuario(newUsuario);
+        usuarioService.novoUsuario(newUsuario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -36,5 +39,9 @@ public class UsuarioApiDelegateImpl implements UsuarioApiDelegate {
 
     }
 
+    public ResponseEntity<Void> postUsuarioValidaTokenV1(PostUsuarioValidaTokenV1Request postUsuarioValidaTokenV1Request) {
+          usuarioActivationService.validaToken(postUsuarioValidaTokenV1Request.getToken());
+          return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

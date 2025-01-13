@@ -21,7 +21,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpec
     @Query(value = "select p from Usuario p where (p.telefone = :filter or p.email = :filter) and p.status = :status")
     Optional<Usuario> findByTelefoneOrEmailAndStatus(@Param("filter") String filter,
                                                      @Param("status") UsuarioStatusEnum status);
-
     Optional<Usuario> findByTelefone(String telefone);
 
     Optional<Usuario> findByCpf(String cpf);

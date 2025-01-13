@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static java.util.Objects.nonNull;
@@ -57,7 +59,7 @@ public class Usuario implements UserDetails {
 
     @Column(name = "DATA_CADASTRO")
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private LocalDate dataCadastro = LocalDate.now();
+    private LocalDate dataCadastro = LocalDate.now(ZoneOffset.UTC);
 
     @Column(name = "DATA_ALTERACAO")
     @JsonFormat(pattern = "dd/MM/yyyy")
