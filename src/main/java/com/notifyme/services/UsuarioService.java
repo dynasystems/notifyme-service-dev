@@ -21,10 +21,17 @@ import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,12 +44,11 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    Logger logger = LogManager.getLogger(UsuarioService.class);
-
     private final UsuarioRepository repository;
     private final PasswordUtils passwordUtils;
     private final NotificacaoService notificacaoService;
     private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final UploadFileService uploadFileService;
 
     public void save (Usuario usuario) {
         repository.save(usuario);
@@ -96,11 +102,9 @@ public class UsuarioService {
         }
     }
 
-    public void updateUsuario (UpdateUsuarioRequestDTO dto) {
-
+    public void updateUsuario (@PathVariable String id, @RequestBody UpdateUsuarioRequestDTO dto) {
         try {
-
-            var usuarioExistente = findById(dto.getId());
+            var usuarioExistente = findById(id);
 
             if (nonNull(dto.getNome())) usuarioExistente.setNome(dto.getNome());
             if (nonNull(dto.getTelefone())) usuarioExistente.setTelefone(dto.getTelefone());
@@ -121,6 +125,21 @@ public class UsuarioService {
             //repository.save(usuarioExistente);
         } catch (Exception e) {
             log.error("Erro ao editar usuario", e);
+            throw e;
+        }
+    }
+
+    public void uploadFotoPerfil(@PathVariable String id, @RequestBody MultipartFile file) throws IOException {
+        try {
+            var usuarioExistente = findById(id);
+
+            usuarioExistente.setDataAlteracao(LocalDate.now());
+            String url =  uploadFileService.uploadFile(usuarioExistente.getCpf(), file);
+            usuarioExistente.setFoto(url);
+            repository.save(usuarioExistente);
+
+        } catch (Exception e) {
+            log.error("Erro ao salvar foto do Usuário", e);
             throw e;
         }
     }
