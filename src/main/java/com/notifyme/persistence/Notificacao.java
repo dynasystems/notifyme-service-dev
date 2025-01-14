@@ -1,9 +1,9 @@
 package com.notifyme.persistence;
 
-import com.notifyme.persistence.converter.CondominioStatusConverter;
 import com.notifyme.persistence.converter.NotificacaoStatusConverter;
-import com.notifyme.persistence.enumated.CondominioStatusEnum;
+import com.notifyme.persistence.converter.NotificacaoTipoConverter;
 import com.notifyme.persistence.enumated.NotificacaoStatusEnum;
+import com.notifyme.persistence.enumated.NotificaticaoTipoEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -15,9 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -49,5 +47,9 @@ public class Notificacao {
 
     @Column(name = "TENTATIVAS", unique = true)
     private Integer tentativas;
+
+    @Column(name = "TIPO")
+    @Convert(converter = NotificacaoTipoConverter.class)
+    private NotificaticaoTipoEnum tipo;
 
 }

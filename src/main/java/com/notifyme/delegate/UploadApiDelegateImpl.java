@@ -20,7 +20,7 @@ public class UploadApiDelegateImpl implements UploadApiDelegate {
 
 
     public ResponseEntity<Void> upFotoPerfilV1(String id,
-                                                MultipartFile fotoPerfil) throws IOException {
+                                                MultipartFile fotoPerfil) {
         usuarioService.uploadFotoPerfil(id, fotoPerfil);
         return new ResponseEntity<>(HttpStatus.OK);
 

@@ -54,6 +54,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+
   /v1/usuario/valida-token:
     post:
       summary: Valida um token de ativação e ativa o usuário
@@ -75,6 +76,64 @@ paths:
                   example: 123e4567-e89b-12d3-a456-426614174000
               required:
                 - token
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/usuario/redefinir-senha:
+    post:
+      summary: Redefinir a senha do usuário
+      description: Será gerado uma nova senha para redefinição.
+      tags:
+        - Usuario
+      operationId: postUsuarioRedefinirSenhaV1
+      requestBody:
+        description: Informe o e-mail ou o telefone para receber o e-mail com o token para a troca da senha.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contato:
+                  type: string
+                  description: E-mail ou telefone da sua conta.
+                  example: teste@teste.com
+              required:
+                - contato
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/usuario/{id}/nova-senha:
+    put:
+      summary: Criar uma nova senha
+      description: Criar uma nova senha para o usuário.
+      tags:
+        - Usuario
+      operationId: postUsuarioNovaSenhaV1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário a ser atualizado.
+          schema:
+            type: string
+            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+      requestBody:
+        description: Informe os valores para criar uma nova senha para o usuário.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovaSenhaRequestDTO'
+
       responses:
         '200':
           description: Success response
@@ -364,6 +423,20 @@ components:
           description: Unidade Federativa.
           type: string
           example: 'SP'
+    NovaSenhaRequestDTO:
+      type: object
+      properties:
+        senha:
+          description: Informe a nova senha.
+          type: string
+          example: '#1TestSenh@'
+        token:
+          description: Token que recebeu via e-mail.
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+      required:
+        - senha
+        - token
 
     PageResult:
       type: object

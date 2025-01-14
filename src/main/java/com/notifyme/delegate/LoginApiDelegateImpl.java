@@ -6,6 +6,7 @@ import com.notifyme.dto.login.LoginRequest;
 import com.notifyme.mapper.LoginMapper;
 import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.model.LoginResposeDTO;
+import com.notifyme.model.PostUsuarioRedefinirSenhaV1Request;
 import com.notifyme.security.TokenService;
 import com.notifyme.services.LoginService;
 import lombok.RequiredArgsConstructor;

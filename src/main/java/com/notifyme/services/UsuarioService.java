@@ -3,35 +3,29 @@ package com.notifyme.services;
 import com.notifyme.error.NotifyMeErrorEnum;
 import com.notifyme.error.exceptions.CustomException;
 import com.notifyme.error.exceptions.UsuarioNotFoundException;
+import com.notifyme.model.NovaSenhaRequestDTO;
+import com.notifyme.model.PostUsuarioRedefinirSenhaV1Request;
 import com.notifyme.model.UpdateUsuarioRequestDTO;
 import com.notifyme.persistence.ConfirmationToken;
 import com.notifyme.persistence.Notificacao;
 import com.notifyme.persistence.Usuario;
+import com.notifyme.persistence.enumated.NotificaticaoTipoEnum;
 import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
-import com.notifyme.repository.ConfirmationTokenRepository;
 import com.notifyme.repository.UsuarioRepository;
 import com.notifyme.utils.PasswordUtils;
 import com.notifyme.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.cglib.core.Local;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,8 +41,9 @@ public class UsuarioService {
     private final UsuarioRepository repository;
     private final PasswordUtils passwordUtils;
     private final NotificacaoService notificacaoService;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
     private final UploadFileService uploadFileService;
+    private final ConfirmationTokenService confirmationTokenService;
+
 
     public void save (Usuario usuario) {
         repository.save(usuario);
@@ -74,17 +69,17 @@ public class UsuarioService {
             usuario.setPassword(passwordUtils.encode(usuario.getPassword()));
             usuario.setStatus(UsuarioStatusEnum.PENDENTE_DE_VALIDACAO);
             usuario.setRole(UserRole.ADMINCONDOMINIO);
+
             Usuario save = repository.save(usuario);
 
-            Notificacao notificacao = new Notificacao();
-            notificacao.setUsuario(usuario);
-            notificacaoService.save(notificacao);
+            createNotificacao(save, NotificaticaoTipoEnum.NOVO_USUARIO);
 
         } catch (Exception e) {
             log.error("Erro ao cadastrar usuario e/ou notificação", e);
             throw e;
         }
     }
+
 
     private void validaUsuario(Usuario usuario) {
         var usuarioExistente = repository.findByTelefoneOrEmailOrCpf(usuario.getTelefone(), usuario.getEmail(), usuario.getCpf());
@@ -121,15 +116,14 @@ public class UsuarioService {
             if (nonNull(dto.getRole())) usuarioExistente.setRole(UserRole.valueOf(dto.getRole()));
             LocalDate agora = LocalDate.now();
             usuarioExistente.setDataAlteracao(agora);
-
-            //repository.save(usuarioExistente);
+            repository.save(usuarioExistente);
         } catch (Exception e) {
             log.error("Erro ao editar usuario", e);
             throw e;
         }
     }
 
-    public void uploadFotoPerfil(@PathVariable String id, @RequestBody MultipartFile file) throws IOException {
+    public void uploadFotoPerfil(@PathVariable String id, @RequestBody MultipartFile file) {
         try {
             var usuarioExistente = findById(id);
 
@@ -166,6 +160,43 @@ public class UsuarioService {
 
     public List<Usuario> listaUsuarioStatus(UsuarioStatusEnum status) {
         return  repository.findByStatus(status);
+    }
+
+    public void redefinirSenha(PostUsuarioRedefinirSenhaV1Request postUsuarioRedefinirSenhaV1Request) {
+        try {
+            Usuario usuario = repository.findByTelefoneOrEmailAndStatus(postUsuarioRedefinirSenhaV1Request.getContato(),
+                    UsuarioStatusEnum.ATIVO).orElseThrow(UsuarioNotFoundException::new);
+            createNotificacao(usuario, NotificaticaoTipoEnum.NOVA_SENHA);
+        } catch (Exception e) {
+        log.error("Erro ao redefinir nova senha do usuario", e);
+        throw e;
+        }
+    }
+
+    private void createNotificacao(Usuario save, NotificaticaoTipoEnum novoUsuario) {
+        Notificacao notificacao = new Notificacao();
+        notificacao.setUsuario(save);
+        notificacao.setTipo(novoUsuario);
+        notificacaoService.save(notificacao);
+    }
+
+    @Transactional
+    public void novaSenha(String id, NovaSenhaRequestDTO novaSenhaRequestDTO) {
+        log.info("Atualizando a senha do usuario id {}", id);
+        try {
+            Usuario usuario = findById(id);
+            LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
+            ConfirmationToken token = confirmationTokenService.findByTokenAndUnconfirmedAndValid(novaSenhaRequestDTO.getToken(), currentDateTime);
+            token.setConfirmedAt(currentDateTime);
+            confirmationTokenService.save(token);
+
+            usuario.setPassword(passwordUtils.encode(novaSenhaRequestDTO.getSenha()));
+            repository.save(usuario);
+            log.info("Senha do usuario id {} atualizada com sucesso", id);
+        }catch (Exception e) {
+            log.error("Erro ao atualizar a nova senha do usuario", e);
+            throw e;
+        }
     }
 }
 

@@ -2,6 +2,8 @@ package com.notifyme.delegate;
 
 import com.notifyme.controller.UsuarioApiDelegate;
 import com.notifyme.mapper.UsuarioMapper;
+import com.notifyme.model.NovaSenhaRequestDTO;
+import com.notifyme.model.PostUsuarioRedefinirSenhaV1Request;
 import com.notifyme.model.PostUsuarioValidaTokenV1Request;
 import com.notifyme.model.UpdateUsuarioRequestDTO;
 import com.notifyme.model.UsuarioRequestDTO;
@@ -44,4 +46,15 @@ public class UsuarioApiDelegateImpl implements UsuarioApiDelegate {
           return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<Void> postUsuarioRedefinirSenhaV1(PostUsuarioRedefinirSenhaV1Request postUsuarioRedefinirSenhaV1Request) {
+        usuarioService.redefinirSenha(postUsuarioRedefinirSenhaV1Request);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<Void> postUsuarioNovaSenhaV1(String id, NovaSenhaRequestDTO novaSenhaRequestDTO) {
+        usuarioService.novaSenha(id, novaSenhaRequestDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
 }

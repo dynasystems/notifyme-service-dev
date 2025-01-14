@@ -28,5 +28,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpec
     Optional<Usuario> findByTelefoneOrEmailOrCpf(String telefone, String email, String cpf);
 
     List<Usuario> findByStatus(UsuarioStatusEnum status);
-
 }

@@ -21,7 +21,7 @@ import java.util.UUID;
 public class UsuarioActivationService {
 
     private final UsuarioService usuarioService;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final ConfirmationTokenService confirmationTokenService;
 
     @Transactional
     public void validaToken(String token) {
@@ -39,15 +39,14 @@ public class UsuarioActivationService {
 
     private ConfirmationToken validarToken(String token) {
         LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByTokenAndUnconfirmedAndValid(UUID.fromString(token), currentDateTime)
-                .orElseThrow(TokenNotFoundException::new);
+        ConfirmationToken confirmationToken = confirmationTokenService.findByTokenAndUnconfirmedAndValid(token, currentDateTime);
 
         if (confirmationToken.getConfirmedAt() != null) {
             throw new TokenAlreadyConfirmedException();
         }
 
         confirmationToken.setConfirmedAt(currentDateTime);
-        confirmationTokenRepository.saveAndFlush(confirmationToken);
+        confirmationTokenService.save(confirmationToken);
         return confirmationToken;
     }
 

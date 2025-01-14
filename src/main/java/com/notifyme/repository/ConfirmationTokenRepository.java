@@ -13,4 +13,5 @@ public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationT
 
     @Query("SELECT t FROM ConfirmationToken t WHERE t.token = :token AND t.confirmedAt IS NULL AND t.expiresAt > :currentDateTime")
     Optional<ConfirmationToken> findByTokenAndUnconfirmedAndValid(@Param("token") UUID token, @Param("currentDateTime") LocalDateTime currentDateTime);
+
 }
