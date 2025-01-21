@@ -1,11 +1,13 @@
 package com.notifyme.persistence;
 
-import com.notifyme.persistence.converter.CondominioStatusConverter;
-import com.notifyme.persistence.enumated.CondominioStatusEnum;
+import com.notifyme.persistence.converter.CondominioTipoConverter;
+import com.notifyme.persistence.converter.UsuarioStatusConverter;
+import com.notifyme.persistence.enumated.CondominoTipoEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,15 +54,12 @@ public class Condominio {
     @Column(name = "ESTADO")
     private String estado;
 
-    @Column(name = "STATUS")
-    @Convert(converter = CondominioStatusConverter.class)
-    private CondominioStatusEnum status;
-
     @Column(name = "DATA_CADASTRO")
-    private LocalDate dataCadastro;
+    private LocalDateTime dataCadastro = LocalDateTime.now(ZoneOffset.UTC);
 
-    @Column(name = "DATA_ALTERACAO")
-    private LocalDate dataAlteracao;
+    @Column(name = "TIPO")
+    @Convert(converter = CondominioTipoConverter.class)
+    private CondominoTipoEnum tipo;
 
     @OneToMany(mappedBy = "condominio", fetch = FetchType.LAZY)
     private List<Unidade> unidades;

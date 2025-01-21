@@ -1,7 +1,6 @@
 package com.notifyme.delegate;
 
 import com.notifyme.controller.UploadApiDelegate;
-import com.notifyme.services.UploadFileService;
 import com.notifyme.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,18 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Service
 @RequiredArgsConstructor
 public class UploadApiDelegateImpl implements UploadApiDelegate {
 
     private final UsuarioService usuarioService;
 
-
-
-    public ResponseEntity<Void> upFotoPerfilV1(String id,
-                                                MultipartFile fotoPerfil) {
+    public ResponseEntity<Void> upFotoPerfilV1(String id, MultipartFile fotoPerfil) {
         usuarioService.uploadFotoPerfil(id, fotoPerfil);
         return new ResponseEntity<>(HttpStatus.OK);
 

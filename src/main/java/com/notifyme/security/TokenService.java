@@ -2,14 +2,11 @@ package com.notifyme.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.notifyme.dto.login.LoginRequest;
 import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.persistence.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPrivateKey;

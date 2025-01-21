@@ -2,12 +2,8 @@ package com.notifyme.delegate;
 
 
 import com.notifyme.controller.AutenticacaoApiDelegate;
-import com.notifyme.dto.login.LoginRequest;
-import com.notifyme.mapper.LoginMapper;
 import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.model.LoginResposeDTO;
-import com.notifyme.model.PostUsuarioRedefinirSenhaV1Request;
-import com.notifyme.security.TokenService;
 import com.notifyme.services.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,8 +18,7 @@ public class LoginApiDelegateImpl  implements AutenticacaoApiDelegate {
 
     @Override
     public ResponseEntity<LoginResposeDTO> postLoginV1(LoginRequestDTO loginRequestDTO)  {
-        final LoginResposeDTO loginResposeDTO = LoginMapper.INSTANCE.convertToResponseDTO(tokenService.login(loginRequestDTO));
-
+        final LoginResposeDTO loginResposeDTO = tokenService.login(loginRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(loginResposeDTO);
     }
 }

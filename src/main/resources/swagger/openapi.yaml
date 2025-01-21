@@ -201,7 +201,7 @@ paths:
       summary: API consulta de condominio
       description: Essa API busca todos os condomínios.
       tags:
-        - condominio
+        - Condominio
       operationId: getCondominioV1
       parameters:
         - $ref: '#/components/parameters/authorization'
@@ -214,6 +214,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CondominioResponseWrapper'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: API de cadastro de condominio
+      description: Essa API cadastra condominio.
+      tags:
+        - Condominio
+      operationId: postCondominioV1
+      requestBody:
+        description: Criar novo condominio.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CondominioRequestDTO'
+      responses:
+        '200':
+          description: Success response
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
@@ -437,6 +457,78 @@ components:
       required:
         - senha
         - token
+
+    CondominioRequestDTO:
+      type: object
+      properties:
+        usuarioId:
+          description: Id do usuario
+          type: string
+          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
+        nome:
+          description: Nome do condominio.
+          type: string
+          example: 'Residencial Solar das Palmeiras'
+        cnpj:
+          description: CNPJ do condominio.
+          type: string
+          example: '44473179000170'
+        telefone:
+          description: Telefone do condominio.
+          type: string
+          example: '18998232323'
+        email:
+          description: E-mail do condominio.
+          type: string
+          example: 'teste@teste.com'
+        cep:
+          description: CEP do condominio.
+          type: string
+          example: '19800-000'
+        logradouro:
+          description: Logradouro do condominio.
+          type: string
+          example: 'Rua marechal Rondon 101'
+        numero:
+          description: Logradouro do condominio.
+          type: string
+          example: '101'
+        complemento:
+          description: Complemento.
+          type: string
+          example: 'Perto da praça da Paz'
+        cidade:
+          description: Cidade do condominio.
+          type: string
+          example: 'Maringa'
+        estado:
+          description: Estado do condominio.
+          type: string
+          example: 'SP'
+        bairro:
+          description: Bairro do condominio.
+          type: string
+          example: 'Vila Brasileira'
+        tipo:
+          description: Tipo do condomínio.
+          type: string
+          enum:
+            - RESIDENCIAL
+            - COMERCIAL
+          example: 'RESIDENCIAL'
+      required:
+        - usuarioId
+        - nome
+        - cnpj
+        - telefone
+        - email
+        - cep
+        - logradouro
+        - numero
+        - cidade
+        - estado
+        - bairro
+        - tipo
 
     PageResult:
       type: object

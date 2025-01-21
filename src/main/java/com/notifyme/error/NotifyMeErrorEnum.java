@@ -13,7 +13,8 @@ public enum NotifyMeErrorEnum {
     TOKEN_JA_VALIDADO("NM-010","Token já validado."),
     FALHA_AO_CRIAR_DIRETORIO("NM-011"," Falha ao criar diretório de arquivos"),
     ERRO_AO_SALVAR_ARQUIVO("NM-012"," Erro ao salvar Arquivo: %s"),
-    ERRO_AO_EXCLUIR_ARQUIVO("NM-013"," Erro ao excluir Arquivo: %s");
+    ERRO_AO_EXCLUIR_ARQUIVO("NM-013"," Erro ao excluir Arquivo: %s"),
+    CONDOMINIO_EXISTENTE("NM-014", "Condominio já cadastrado");
 
     private String code;
     private String message;

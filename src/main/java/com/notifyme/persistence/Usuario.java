@@ -1,7 +1,6 @@
 package com.notifyme.persistence;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.notifyme.dto.login.LoginRequest;
 import com.notifyme.persistence.converter.UsuarioStatusConverter;
 import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
@@ -13,14 +12,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static java.util.Objects.nonNull;
 
 @Data
 @Entity

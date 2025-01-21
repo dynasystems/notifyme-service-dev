@@ -1,9 +1,6 @@
 package com.notifyme.services;
 
-import com.notifyme.dto.login.LoginRequest;
-import com.notifyme.dto.login.LoginResponse;
 import com.notifyme.error.exceptions.CredenciaisInvalidException;
-import com.notifyme.error.exceptions.UsuarioNotFoundException;
 import com.notifyme.model.LoginRequestDTO;
 import com.notifyme.model.LoginResposeDTO;
 import com.notifyme.persistence.Usuario;
@@ -14,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -25,11 +21,11 @@ public class LoginService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    public LoginResponse login(LoginRequestDTO loginRequest) {
+    public LoginResposeDTO login(LoginRequestDTO loginRequest) {
         log.info("Iniciando login para o usuário {}", loginRequest.getUsername());
         var auth = authenticate(loginRequest);
         var token =  tokenService.generatedToken((Usuario) auth.getPrincipal(), loginRequest);
-        return new LoginResponse(token);
+        return new LoginResposeDTO( token,null);
     }
 
     private Authentication authenticate(LoginRequestDTO loginRequest) {
