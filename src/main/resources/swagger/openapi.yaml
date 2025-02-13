@@ -238,7 +238,27 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
-
+  /v1/condomino:
+    post:
+      summary: Cadastro do condominos
+      description: Cadastrar todos os condominos do condominio.
+      tags:
+        - Condomino
+      operationId: postCondominoV1
+      requestBody:
+        description: Criar novo condomino.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CondominoRequestDTO'
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v1/cep:
     get:
       summary: API de autenticação
@@ -286,6 +306,27 @@ paths:
             schema:
               $ref: '#/components/schemas/FotoPerfilRequestDTO'
 
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/unidade:
+    post:
+      summary: Cadastrar as unidades
+      description: Casdastra as unidades do condominio
+      tags:
+        - Unidade
+      operationId: postUnidadeV1
+      requestBody:
+        description: Criar novo condominio.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnidadeRequestDTO'
       responses:
         '200':
           description: Success response
@@ -352,6 +393,7 @@ components:
         email:
           description: Informe um e-mail valido.
           type: string
+          format: email
           example: 'notifyme@teste.com'
         password:
           description: Informe uma senha.
@@ -480,6 +522,7 @@ components:
         email:
           description: E-mail do condominio.
           type: string
+          format: email
           example: 'teste@teste.com'
         cep:
           description: CEP do condominio.
@@ -529,6 +572,48 @@ components:
         - estado
         - bairro
         - tipo
+
+    UnidadeRequestDTO:
+      type: object
+      properties:
+        condominioId:
+          description: ID do condominio
+          type: string
+          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
+        descricao:
+          description: descricao.
+          type: string
+          example: 'Descricao da unidade'
+
+      required:
+        - condominioId
+        - descricao
+    CondominoRequestDTO:
+      type: object
+      properties:
+        unidadeId:
+          description: Id da Unidade
+          type: string
+          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
+        nome:
+          description: Nome do condominio.
+          type: string
+          example: 'Residencial Solar das Palmeiras'
+        telefone:
+          description: CNPJ do condominio.
+          type: string
+          example: '44473179000170'
+        email:
+          description: Telefone do condominio.
+          type: string
+          format: email
+          example: '18998232323'
+
+      required:
+        - unidadeId
+        - nome
+        - telefone
+        - email
 
     PageResult:
       type: object

@@ -14,7 +14,11 @@ public enum NotifyMeErrorEnum {
     FALHA_AO_CRIAR_DIRETORIO("NM-011"," Falha ao criar diretório de arquivos"),
     ERRO_AO_SALVAR_ARQUIVO("NM-012"," Erro ao salvar Arquivo: %s"),
     ERRO_AO_EXCLUIR_ARQUIVO("NM-013"," Erro ao excluir Arquivo: %s"),
-    CONDOMINIO_EXISTENTE("NM-014", "Condominio já cadastrado");
+    CONDOMINIO_EXISTENTE("NM-014", "Condominio já cadastrado"),
+    CONDOMINIO_NAO_ENCONTRADO("NM-015","Condominio não encontrado"),
+    UNIDADE_EXISTENTE("NM-016","Unidade já cadastrada no condominio"),
+    UNIDADE_NAO_ENCONTRADA("NM-017","Unidade não encontrada"),
+    CONDOMINO_EXISTENTE_UNIDADE("NM-018","Já existe esse condomino nessa unidade");
 
     private String code;
     private String message;

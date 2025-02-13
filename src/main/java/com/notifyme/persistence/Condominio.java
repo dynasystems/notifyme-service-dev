@@ -1,7 +1,6 @@
 package com.notifyme.persistence;
 
 import com.notifyme.persistence.converter.CondominioTipoConverter;
-import com.notifyme.persistence.converter.UsuarioStatusConverter;
 import com.notifyme.persistence.enumated.CondominoTipoEnum;
 import jakarta.persistence.*;
 import lombok.Data;

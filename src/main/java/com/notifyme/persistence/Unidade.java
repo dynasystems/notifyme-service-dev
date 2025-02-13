@@ -1,12 +1,14 @@
 package com.notifyme.persistence;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.UUID;
 
+@Data
 @Entity
-@Table(name = "NB_UNIDADE")
+@Table(name = "NM_UNIDADE")
 public class Unidade {
 
     @Id
@@ -19,6 +21,6 @@ public class Unidade {
     private Condominio condominio;
 
     @Column(name = "DESCRICAO")
-    private Long descricao;
+    private String descricao;
 
 }
