@@ -21,7 +21,7 @@ public class ConfirmationTokenService {
         confirmationTokenRepository.save(confirmationToken);
     }
 
-    public ConfirmationToken findByTokenAndUnconfirmedAndValid(String id, LocalDateTime localDateTime) {
-        return confirmationTokenRepository.findByTokenAndUnconfirmedAndValid(UUID.fromString(id), localDateTime).orElseThrow(TokenNotFoundException::new);
+    public ConfirmationToken findByTokenAndUnconfirmedAndValid(Integer id, LocalDateTime localDateTime) {
+        return confirmationTokenRepository.findByTokenAndUnconfirmedAndValid(id, localDateTime).orElseThrow(TokenNotFoundException::new);
     }
 }

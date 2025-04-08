@@ -14,9 +14,11 @@ public class UploadApiDelegateImpl implements UploadApiDelegate {
 
     private final UsuarioService usuarioService;
 
-    public ResponseEntity<Void> upFotoPerfilV1(String id, MultipartFile fotoPerfil) {
+    public ResponseEntity<Void> upFotoPerfilV1(Integer id, MultipartFile fotoPerfil) {
         usuarioService.uploadFotoPerfil(id, fotoPerfil);
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
+
+
 }

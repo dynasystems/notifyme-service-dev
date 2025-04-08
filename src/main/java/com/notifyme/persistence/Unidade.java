@@ -12,9 +12,9 @@ import java.util.UUID;
 public class Unidade {
 
     @Id
-    @GeneratedValue(generator = "UUID_generator")
-    @Column(name = "ID", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CONDOMINIO_ID", referencedColumnName = "ID", updatable = false, nullable = false)

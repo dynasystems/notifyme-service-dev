@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
-public interface CondominoRepository extends JpaRepository<Condomino, UUID> {
+public interface CondominoRepository extends JpaRepository<Condomino, Integer> {
 
     @Query("SELECT c FROM Condomino c WHERE c.unidade = :unidade")
     List<Condomino> getAllCondominoByUnidade(@Param("unidade") Unidade unidade);

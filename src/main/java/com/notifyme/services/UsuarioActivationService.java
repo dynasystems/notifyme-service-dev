@@ -24,7 +24,7 @@ public class UsuarioActivationService {
     private final ConfirmationTokenService confirmationTokenService;
 
     @Transactional
-    public void validaToken(String token) {
+    public void validaToken(Integer token) {
         log.info("Validando token e ativando usuario, token : {}", token);
 
         try {
@@ -37,7 +37,7 @@ public class UsuarioActivationService {
         }
     }
 
-    private ConfirmationToken validarToken(String token) {
+    private ConfirmationToken validarToken(Integer token) {
         LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
         ConfirmationToken confirmationToken = confirmationTokenService.findByTokenAndUnconfirmedAndValid(token, currentDateTime);
 

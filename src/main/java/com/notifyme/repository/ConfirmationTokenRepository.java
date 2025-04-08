@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken,UUID> {
+public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken,Integer> {
 
     @Query("SELECT t FROM ConfirmationToken t WHERE t.token = :token AND t.confirmedAt IS NULL AND t.expiresAt > :currentDateTime")
-    Optional<ConfirmationToken> findByTokenAndUnconfirmedAndValid(@Param("token") UUID token, @Param("currentDateTime") LocalDateTime currentDateTime);
+    Optional<ConfirmationToken> findByTokenAndUnconfirmedAndValid(@Param("token") Integer token, @Param("currentDateTime") LocalDateTime currentDateTime);
 
 }

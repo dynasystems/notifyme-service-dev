@@ -30,7 +30,7 @@ public class UnidadeService {
         }
     }
 
-    public Optional<Unidade> getUnidadeCondominio(String descricao, UUID condominioId) {
+    public Optional<Unidade> getUnidadeCondominio(String descricao, Integer condominioId) {
         try {
             log.info("Buscando unidade do condominio {}", condominioId);
             return unidadeRepository.findByDescricaoAndCondominioId(descricao, condominioId);
@@ -40,10 +40,10 @@ public class UnidadeService {
         }
     }
 
-    public Unidade getUnidade(String unidadeId) {
+    public Unidade getUnidade(Integer unidadeId) {
         try {
             log.info("Buscando unidade com o id {}", unidadeId);
-            return unidadeRepository.findById(UUID.fromString(unidadeId)).orElseThrow(UnidadeNotFoundException::new);
+            return unidadeRepository.findById(unidadeId).orElseThrow(UnidadeNotFoundException::new);
         } catch (Exception e) {
             log.info("Erro ao buscar unidade com o id {}", unidadeId);
             throw e;

@@ -54,6 +54,32 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    get:
+      summary: API de consultar os usuarios
+      description: Essa API busca todos os usuarios do condominio.
+      tags:
+        - Usuario
+      operationId: getCondominioV1
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/requiredPageSize'
+        - $ref: '#/components/parameters/requiredPageNumber'
+        - $ref: '#/components/parameters/nomeInQuery'
+        - $ref: '#/components/parameters/cpfInQuery'
+        - $ref: '#/components/parameters/telefoneInQuery'
+        - $ref: '#/components/parameters/emailInQuery'
+        - $ref: '#/components/parameters/statusInQuery'
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuariosResponseWrapper'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /v1/usuario/valida-token:
     post:
@@ -71,9 +97,9 @@ paths:
               type: object
               properties:
                 token:
-                  type: string
+                  type: integer
                   description: Token único para validação.
-                  example: 123e4567-e89b-12d3-a456-426614174000
+                  example: 101020
               required:
                 - token
       responses:
@@ -124,8 +150,8 @@ paths:
           required: true
           description: ID do usuário a ser atualizado.
           schema:
-            type: string
-            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+            type: integer
+            example: "12355"
       requestBody:
         description: Informe os valores para criar uma nova senha para o usuário.
         required: true
@@ -155,8 +181,8 @@ paths:
           required: true
           description: ID do usuário a ser atualizado.
           schema:
-            type: string
-            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+            type: integer
+            example: 101020
       requestBody:
         description: Edição de usuário.
         required: true
@@ -186,8 +212,8 @@ paths:
           required: true
           description: ID do usuário a ser atualizado.
           schema:
-            type: string
-            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+            type: integer
+            example: 102020
 
       responses:
         '200':
@@ -197,12 +223,34 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /v1/condominio:
+    put:
+      summary: Editar o condominio condominio
+      description: Essa API cadastra condominio.
+      tags:
+        - Condominio
+      operationId: putCondominioV1
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+      requestBody:
+        description: Criar novo condominio.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CondominioBaseRequestDTO'
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       summary: API consulta de condominio
       description: Essa API busca todos os condomínios.
       tags:
         - Condominio
-      operationId: getCondominioV1
+      operationId: getUsuariosV1
       parameters:
         - $ref: '#/components/parameters/authorization'
         - $ref: '#/components/parameters/requiredPageSize'
@@ -218,26 +266,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
-    post:
-      summary: API de cadastro de condominio
-      description: Essa API cadastra condominio.
-      tags:
-        - Condominio
-      operationId: postCondominioV1
-      requestBody:
-        description: Criar novo condominio.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CondominioRequestDTO'
-      responses:
-        '200':
-          description: Success response
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+
+
   /v1/condomino:
     post:
       summary: Cadastro do condominos
@@ -296,7 +326,7 @@ paths:
           description: ID do usuário a ser atualizado.
           schema:
             type: string
-            example: "4571e640-6d5e-48b5-8f26-29a90645a240"
+            example: 102020
 
       requestBody:
         description: Edição de usuário.
@@ -305,6 +335,28 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/FotoPerfilRequestDTO'
+
+      responses:
+        '200':
+          description: Success response
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v1/encomenda/upload:
+    post:
+      summary: API inicial de chegada de encomenda
+      description: API que identifica o destinatario e realiza o envio de notificação.
+      tags:
+        - Encomenda
+      operationId: upImagemEncomenda
+      requestBody:
+        description: Envio de imagem para identificar o destinatario da encomenda.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImagemEncomendaRequestDTO'
 
       responses:
         '200':
@@ -391,7 +443,7 @@ components:
           type: string
           example: '189969692020'
         email:
-          description: Informe um e-mail valido.
+          description: Informe um e-mail válido.
           type: string
           format: email
           example: 'notifyme@teste.com'
@@ -400,18 +452,21 @@ components:
           type: string
           example: '@FacaS3mP0ntA'
         cpf:
-          description: Informe um cpf válido.
+          description: Informe um CPF válido.
           pattern: "^[0-9]{11}$"
           type: string
           example: '79222300017'
           minLength: 11
           maxLength: 11
+        condominio:
+          $ref: '#/components/schemas/CondominioSimplesDTO'
       required:
         - nome
         - email
         - telefone
         - password
         - cpf
+        - condominio
 
     UpdateUsuarioRequestDTO:
       type: object
@@ -457,6 +512,16 @@ components:
           example: 'https://editor.swagger.io/'
       required:
         - fotoPerfil
+    ImagemEncomendaRequestDTO:
+      type: object
+      properties:
+        imagemEncomenda:
+          description: Foto da encomenda.
+          type: string
+          format: binary
+          example: 'https://editor.swagger.io/'
+      required:
+        - imagemEncomenda
 
     CepResponseDTO:
       type: object
@@ -494,26 +559,25 @@ components:
           example: '#1TestSenh@'
         token:
           description: Token que recebeu via e-mail.
-          type: string
-          example: 123e4567-e89b-12d3-a456-426614174000
+          type: integer
+          example: 101020
       required:
         - senha
         - token
 
-    CondominioRequestDTO:
+    CondominioBaseRequestDTO:
       type: object
       properties:
-        usuarioId:
-          description: Id do usuario
-          type: string
-          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
-        nome:
+        razao:
           description: Nome do condominio.
           type: string
           example: 'Residencial Solar das Palmeiras'
         cnpj:
           description: CNPJ do condominio.
           type: string
+          pattern: "^[0-9]{14}$"
+          minLength: 14
+          maxLength: 14
           example: '44473179000170'
         telefone:
           description: Telefone do condominio.
@@ -560,7 +624,6 @@ components:
             - COMERCIAL
           example: 'RESIDENCIAL'
       required:
-        - usuarioId
         - nome
         - cnpj
         - telefone
@@ -573,13 +636,31 @@ components:
         - bairro
         - tipo
 
+    CondominioSimplesDTO:
+      type: object
+      properties:
+        razao:
+          description: Nome do condomínio.
+          type: string
+          example: 'Residencial Solar das Palmeiras'
+        cnpj:
+          description: CNPJ do condomínio.
+          type: string
+          pattern: "^[0-9]{14}$"
+          minLength: 14
+          maxLength: 14
+          example: '44473179000170'
+      required:
+        - nome
+        - cnpj
+
     UnidadeRequestDTO:
       type: object
       properties:
         condominioId:
           description: ID do condominio
-          type: string
-          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
+          type: integer
+          example: 101020
         descricao:
           description: descricao.
           type: string
@@ -593,8 +674,8 @@ components:
       properties:
         unidadeId:
           description: Id da Unidade
-          type: string
-          example: '4571e640-6d5e-48b5-8f26-29a90645a240'
+          type: integer
+          example: 102020
         nome:
           description: Nome do condominio.
           type: string
@@ -719,6 +800,21 @@ components:
         - code
         - message
 
+    UsuariosResponseWrapper:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UsuariosInfoListResponse'
+    UsuariosInfoListResponse:
+      allOf:
+        - type: object
+          properties:
+            usuarios:
+              type: array
+              items:
+                $ref: '#/components/schemas/UsuariosResponse'
+        - $ref: '#/components/schemas/PageResult'
+
     CondominioResponseWrapper:
       type: object
       properties:
@@ -734,14 +830,43 @@ components:
               items:
                 $ref: '#/components/schemas/CondominioResponse'
         - $ref: '#/components/schemas/PageResult'
+    UsuariosResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id do Condominio.
+          example: '12345678910'
+        nome:
+          type: string
+          description: Nome do Condominio
+          example: 'Condominio Solar das Palmeiras'
+        foto:
+          type: string
+          description: Foto do usuário
+          example: 'Foto do usuário'
+        cpf:
+          type: string
+          description: CNPJ do Solar das Palmeiras.
+          example: '31577199000149'
+        telefone:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+        email:
+          type: string
+          description: Telefone do Codominio.
+          example: '18998237470'
+        status:
+          $ref: '#/components/schemas/StatusUsuario'
 
     CondominioResponse:
       type: object
       properties:
         condominioId:
-          type: string
+          type: integer
           description: Id do Condominio.
-          example: '412b9323-E595-5ed9-a389-0938333b6fb1'
+          example: 102020
         condominioNome:
           type: string
           description: Nome do Condominio
@@ -766,6 +891,12 @@ components:
           type: string
           description: Telefone do Codominio.
           example: '18998237470'
+
+    StatusUsuario:
+      description: Indicates the status of monitoring
+      type: string
+      enum: [ATIVO, INATIVO, BLOQUEADO, PENDENTE_DE_VALIDACAO]
+      example: ATIVO
 
   responses:
     BadRequest:
@@ -826,6 +957,43 @@ components:
       schema:
         type: string
       required: true
+
+    nomeInQuery:
+      name: nome
+      in: query
+      description: Nome.
+      schema:
+        type: string
+      required: false
+    cpfInQuery:
+      name: cpf
+      in: query
+      description: cpf.
+      schema:
+        type: string
+      required: false
+    telefoneInQuery:
+      name: telefone
+      in: query
+      description: telefone.
+      schema:
+        type: string
+      required: false
+    emailInQuery:
+      name: email
+      in: query
+      description: email.
+      schema:
+        type: string
+      required: false
+    statusInQuery:
+      description: 'Filtro de status de usuário'
+      in: query
+      name: status
+      example: 'Refund for fraud'
+      required: false
+      schema:
+        $ref: "#/components/schemas/StatusUsuario"
 
     authorization:
       name: Authorization

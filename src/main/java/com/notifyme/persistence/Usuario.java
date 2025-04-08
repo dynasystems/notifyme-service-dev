@@ -27,9 +27,9 @@ import java.util.*;
 public class Usuario implements UserDetails {
 
     @Id
-    @GeneratedValue
-    @Column(name = "ID", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Integer id;
 
     @Column(name = "NOME")
     private String nome;
@@ -64,6 +64,9 @@ public class Usuario implements UserDetails {
     @Column(name = "ROLE")
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UsuarioCondominio> usuarioCondominios;
 
 
     @Override

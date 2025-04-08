@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CondominioRepository extends JpaRepository<Condominio, UUID> {
+public interface CondominioRepository extends JpaRepository<Condominio, Integer> {
 
     Optional<Condominio> findByNome(String nome);
     Optional<Condominio> findByCnpj(String cnpj);

@@ -3,20 +3,30 @@ package com.notifyme.services;
 import com.notifyme.error.NotifyMeErrorEnum;
 import com.notifyme.error.exceptions.CustomException;
 import com.notifyme.error.exceptions.UsuarioNotFoundException;
+import com.notifyme.mapper.UsuarioMapper;
 import com.notifyme.model.NovaSenhaRequestDTO;
 import com.notifyme.model.PostUsuarioRedefinirSenhaV1Request;
 import com.notifyme.model.UpdateUsuarioRequestDTO;
+import com.notifyme.model.UsuarioRequestDTO;
+import com.notifyme.models.UsuarioQueryParams;
+import com.notifyme.persistence.Condominio;
 import com.notifyme.persistence.ConfirmationToken;
 import com.notifyme.persistence.Notificacao;
 import com.notifyme.persistence.Usuario;
 import com.notifyme.persistence.enumated.NotificaticaoTipoEnum;
 import com.notifyme.persistence.enumated.UserRole;
 import com.notifyme.persistence.enumated.UsuarioStatusEnum;
+import com.notifyme.persistence.specifications.UsuarioSpecification;
 import com.notifyme.repository.UsuarioRepository;
 import com.notifyme.utils.PasswordUtils;
 import com.notifyme.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +37,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -38,41 +47,47 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    private final UsuarioRepository repository;
+    private final UsuarioRepository usuarioRepository;
     private final PasswordUtils passwordUtils;
     private final NotificacaoService notificacaoService;
     private final UploadFileService uploadFileService;
     private final ConfirmationTokenService confirmationTokenService;
+    private final CondominioService condominioService;
 
 
     public void save (Usuario usuario) {
-        repository.save(usuario);
+        usuarioRepository.save(usuario);
     }
 
-    public Usuario findById (String id) {
-        return  repository.findById(UUID.fromString(id)).orElseThrow(UsuarioNotFoundException::new);
+    public Usuario findById (Integer id) {
+        return  usuarioRepository.findById(id).orElseThrow(UsuarioNotFoundException::new);
     }
 
     public Usuario findByEmail (String email) {
-        return repository.findByEmail(email).orElseThrow(UsuarioNotFoundException::new);
+        return usuarioRepository.findByEmail(email).orElseThrow(UsuarioNotFoundException::new);
     }
 
     public Usuario findByEmailOrTelefoneAndStatus(String userName) {
-        return repository.findByTelefoneOrEmailAndStatus(userName, UsuarioStatusEnum.ATIVO).orElseThrow(UsuarioNotFoundException::new);
+        return usuarioRepository.findByTelefoneOrEmailAndStatus(userName, UsuarioStatusEnum.ATIVO).orElseThrow(UsuarioNotFoundException::new);
     }
 
     @Transactional
-    public void novoUsuario(Usuario usuario) {
+    public void novoUsuario(UsuarioRequestDTO usuarioRequestDTO) {
 
         try {
-            validaUsuario(usuario);
-            usuario.setPassword(passwordUtils.encode(usuario.getPassword()));
-            usuario.setStatus(UsuarioStatusEnum.PENDENTE_DE_VALIDACAO);
-            usuario.setRole(UserRole.ADMINCONDOMINIO);
+            Usuario newUsuario = UsuarioMapper.INSTANCE.convert(usuarioRequestDTO);
 
-            Usuario save = repository.save(usuario);
+            validaUsuario(newUsuario);
 
-            createNotificacao(save, NotificaticaoTipoEnum.NOVO_USUARIO);
+            newUsuario.setPassword(passwordUtils.encode(newUsuario.getPassword()));
+            newUsuario.setStatus(UsuarioStatusEnum.PENDENTE_DE_VALIDACAO);
+            newUsuario.setRole(UserRole.ADMINCONDOMINIO);
+
+            Usuario usuarioSalvo = usuarioRepository.save(newUsuario);
+
+            createCondominio(usuarioRequestDTO, usuarioSalvo);
+
+            createNotificacao(usuarioSalvo, NotificaticaoTipoEnum.NOVO_USUARIO);
 
         } catch (Exception e) {
             log.error("Erro ao cadastrar usuario e/ou notificação", e);
@@ -80,9 +95,16 @@ public class UsuarioService {
         }
     }
 
+    private void createCondominio(UsuarioRequestDTO usuarioRequestDTO, Usuario usuarioSalvo) {
+        Condominio newCondominio = new Condominio();
+        newCondominio.setNome(usuarioRequestDTO.getCondominio().getRazao());
+        newCondominio.setCnpj(usuarioRequestDTO.getCondominio().getCnpj());
+        condominioService.newCondominio(usuarioSalvo, newCondominio);
+    }
+
 
     private void validaUsuario(Usuario usuario) {
-        var usuarioExistente = repository.findByTelefoneOrEmailOrCpf(usuario.getTelefone(), usuario.getEmail(), usuario.getCpf());
+        var usuarioExistente = usuarioRepository.findByTelefoneOrEmailOrCpf(usuario.getTelefone(), usuario.getEmail(), usuario.getCpf());
 
         if (usuarioExistente.isPresent()) {
             if (usuarioExistente.get().getCpf().equals(usuario.getCpf())) {
@@ -97,7 +119,7 @@ public class UsuarioService {
         }
     }
 
-    public void updateUsuario (@PathVariable String id, @RequestBody UpdateUsuarioRequestDTO dto) {
+    public void updateUsuario (@PathVariable Integer id, @RequestBody UpdateUsuarioRequestDTO dto) {
         try {
             var usuarioExistente = findById(id);
 
@@ -116,21 +138,21 @@ public class UsuarioService {
             if (nonNull(dto.getRole())) usuarioExistente.setRole(UserRole.valueOf(dto.getRole()));
             LocalDate agora = LocalDate.now();
             usuarioExistente.setDataAlteracao(agora);
-            repository.save(usuarioExistente);
+            usuarioRepository.save(usuarioExistente);
         } catch (Exception e) {
             log.error("Erro ao editar usuario", e);
             throw e;
         }
     }
 
-    public void uploadFotoPerfil(@PathVariable String id, @RequestBody MultipartFile file) {
+    public void uploadFotoPerfil(@PathVariable Integer id, @RequestBody MultipartFile file) {
         try {
             var usuarioExistente = findById(id);
 
             usuarioExistente.setDataAlteracao(LocalDate.now());
             String url =  uploadFileService.uploadFile(usuarioExistente.getCpf(), file);
             usuarioExistente.setFoto(url);
-            repository.save(usuarioExistente);
+            usuarioRepository.save(usuarioExistente);
 
         } catch (Exception e) {
             log.error("Erro ao salvar foto do Usuário", e);
@@ -138,7 +160,7 @@ public class UsuarioService {
         }
     }
 
-    public void deleteUsuario (@PathVariable String id) {
+    public void deleteUsuario (@PathVariable Integer id) {
         try {
 
             var usuarioExistente = findById(id);
@@ -150,7 +172,7 @@ public class UsuarioService {
             usuarioExistente.setStatus(UsuarioStatusEnum.BLOQUEADO);
             LocalDate agora = LocalDate.now();
             usuarioExistente.setDataAlteracao(agora);
-            repository.save(usuarioExistente);
+            usuarioRepository.save(usuarioExistente);
 
         } catch (Exception e) {
             log.error("Erro ao excluir usuario", e);
@@ -159,12 +181,12 @@ public class UsuarioService {
     }
 
     public List<Usuario> listaUsuarioStatus(UsuarioStatusEnum status) {
-        return  repository.findByStatus(status);
+        return  usuarioRepository.findByStatus(status);
     }
 
     public void redefinirSenha(PostUsuarioRedefinirSenhaV1Request postUsuarioRedefinirSenhaV1Request) {
         try {
-            Usuario usuario = repository.findByTelefoneOrEmailAndStatus(postUsuarioRedefinirSenhaV1Request.getContato(),
+            Usuario usuario = usuarioRepository.findByTelefoneOrEmailAndStatus(postUsuarioRedefinirSenhaV1Request.getContato(),
                     UsuarioStatusEnum.ATIVO).orElseThrow(UsuarioNotFoundException::new);
             createNotificacao(usuario, NotificaticaoTipoEnum.NOVA_SENHA);
         } catch (Exception e) {
@@ -181,7 +203,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void novaSenha(String id, NovaSenhaRequestDTO novaSenhaRequestDTO) {
+    public void novaSenha(Integer id, NovaSenhaRequestDTO novaSenhaRequestDTO) {
         log.info("Atualizando a senha do usuario id {}", id);
         try {
             Usuario usuario = findById(id);
@@ -191,12 +213,22 @@ public class UsuarioService {
             confirmationTokenService.save(token);
 
             usuario.setPassword(passwordUtils.encode(novaSenhaRequestDTO.getSenha()));
-            repository.save(usuario);
+            usuarioRepository.save(usuario);
             log.info("Senha do usuario id {} atualizada com sucesso", id);
         }catch (Exception e) {
             log.error("Erro ao atualizar a nova senha do usuario", e);
             throw e;
         }
+    }
+
+    public Page<Usuario> findByAllPaged(UsuarioQueryParams usuarioQueryParams) {
+        final Pageable pageable = PageRequest.of(usuarioQueryParams.getPageNumber(),usuarioQueryParams.getPageSize(), Sort.by(Sort.Direction.DESC,"nome"));
+
+        Specification<Usuario> spec  = UsuarioSpecification.filtrarUsuarios(usuarioQueryParams.getCondominioId(), usuarioQueryParams.getNome(),usuarioQueryParams.getCpf(),
+                usuarioQueryParams.getTelefone(), usuarioQueryParams.getEmail(),usuarioQueryParams.getUsuarioStatusEnum());
+
+        return usuarioRepository.findAll(spec, pageable);
+
     }
 }
 

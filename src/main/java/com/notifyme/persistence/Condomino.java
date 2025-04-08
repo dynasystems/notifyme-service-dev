@@ -13,9 +13,9 @@ import java.util.UUID;
 public class Condomino {
 
     @Id
-    @GeneratedValue(generator = "UUID_generator")
-    @Column(name = "ID", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UNIDADE_ID", referencedColumnName = "ID", updatable = false, nullable = false)

@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/notifyme?createDatabaseIfNotExist=true&serverTimezone=UTC
-    username: root
-    password: Solicit3
+    username: dev
+    password: dev
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -42,6 +42,6 @@ app:
   version: #project.version#
 server:
   servlet:
-    context-path: /notifyme-api
+    context-path: /notifyme
   port: 8091
 

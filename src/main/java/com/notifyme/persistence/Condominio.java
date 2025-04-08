@@ -5,6 +5,7 @@ import com.notifyme.persistence.enumated.CondominoTipoEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -16,9 +17,9 @@ import java.util.UUID;
 public class Condominio {
 
     @Id
-    @GeneratedValue(generator = "UUID_generator")
-    @Column(name = "ID", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Integer id;
 
     @Column(name = "NOME")
     private String nome;

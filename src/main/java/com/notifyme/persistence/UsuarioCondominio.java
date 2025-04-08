@@ -12,10 +12,11 @@ import java.util.UUID;
 @Entity
 @Table(name = "NM_USUARIO_CONDOMINIO")
 public class UsuarioCondominio {
+
     @Id
-    @GeneratedValue(generator = "UUID_generator")
-    @Column(name = "ID", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "USUARIO_ID", referencedColumnName = "ID")

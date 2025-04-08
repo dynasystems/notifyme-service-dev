@@ -1,13 +1,6 @@
 package com.notifyme.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -22,8 +15,9 @@ import java.util.UUID;
 public class ConfirmationToken {
 
     @Id
-    @GeneratedValue(generator = "UUID_generator")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", columnDefinition = "BIGINT")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USUARIO_ID", nullable = false)
@@ -38,6 +32,6 @@ public class ConfirmationToken {
     @Column(name = "CONFIRMED_AT", nullable = true)
     private LocalDateTime confirmedAt;
 
-    @Column(name = "TOKEN", columnDefinition = "BINARY(16)", nullable = false, unique = true)
-    private UUID token;
+    @Column(name = "TOKEN", columnDefinition = "BIGINT", nullable = false, unique = true)
+    private Long token;
 }

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.UUID;
 
-public interface NotificacaoRepository extends JpaRepository<Notificacao, UUID>, JpaSpecificationExecutor<Notificacao> {
+public interface NotificacaoRepository extends JpaRepository<Notificacao, Integer>, JpaSpecificationExecutor<Notificacao> {
 
     Notificacao findByUsuarioAndStatus(Usuario usuario, NotificacaoStatusEnum status);
 }
